@@ -1,0 +1,1384 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js" integrity="sha512-UnrKxsCMN9hFk7M56t4I4ckB4N/2HHi0w/7+B/1JsXIX3DmyBcsGpT3/BsuZMZf+6mAr0vP81syWtfynHJ69JA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" integrity="sha512-Qlv6VSKh1gDKGoJbnyA5RMXYcvnpIqhO++MhIM2fStMcGT9i2T//tSwYFlcyoRRDcDZ+TYHpH8azBBCyhpSeqw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://momentjs.com/downloads/moment.js"></script>
+<script>
+    let variantArray = [];
+    let filterArray = [];
+    let filterApplied = false;
+    let filterButton = false;
+    let dropdownValue;
+    let dropdownText;
+    let onloadDropDownValue;
+    let searchKey = '';
+    let minorCodeArray = [];
+    let finishGroupArray = [];
+    let colorGroupArray = [];
+    let frameMaterialGroupArray = [];
+    let upholsterymaterialGroupArray = [];
+    let stylesArray = [];
+    let productTypeArray = [];
+    let productsubTypeArray = [];
+    let sizesArray = [];
+    let heightsArray = [];
+    let mattressfeelsarray = [];
+
+    let numberOfSeatsArray = [];
+    let shapesArray = [];
+    let sideFacingArray = [];
+    let armStylesArray = [];
+    let patternsArray = [];
+    let numberOfDrawersArray = [];
+    let topMaterialGroupsArray = [];
+    let numberOfBulbsArray = [];
+    let bulbWattagesArray = [];
+    let rugPileHeightsArray = [];
+    let artworktypesArray = [];
+    let productCareArray = [];
+    let cupHoldersTypesArray = [];
+    let fillMaterialsArray = [];
+    let constructionsArray = [];
+    let designsArray = [];
+    let featuresArray = [];
+    let mattressFirmnessArray = [];
+    let mattressTailoringArray = [];
+    let windowTreatmentHeaderArray = [];
+
+    
+    $(function() { 
+        debugger;
+        var checkCount = 0;
+        var intervalId;
+
+        // Function to check the dropdown value
+        function checkDropdownValue() {
+            var onloadDropDownValue = $('ul#entitylist-filters li li #dropdown_3').val();
+            console.log(onloadDropDownValue);
+
+            if (onloadDropDownValue !== null && onloadDropDownValue !== undefined && onloadDropDownValue !== '') {
+                // Dropdown has a value
+                filterButton = true;
+                dropdownText = onloadDropDownValue.trim();
+                minorCodeArray = [];
+                getMinorCode(generateWebApiURL4());
+
+                // Stop the interval once the value is found
+                clearInterval(intervalId);
+            }
+
+            // Increment the check count
+            checkCount++;
+
+            // Check only for 3 times
+            if (checkCount >= 5) {
+                // Stop the interval after 3 checks even if the value is not found
+                clearInterval(intervalId);
+            }
+        }
+
+        // Initial check after 3 seconds
+        intervalId = setInterval(checkDropdownValue, 2000);
+
+
+        function getVariant(webapiURL) {
+            debugger;
+            webapi.safeAjax({
+                type: "GET",
+                url: webapiURL,
+                contentType: "application/json",
+                success: function (res) {
+                    variantArray.push.apply(variantArray,res.value);
+                    if(typeof res['@odata.nextLink'] !== "undefined" || res['@odata.nextLink'] === "") {
+                        getVariant(res['@odata.nextLink']);
+                    }                
+                },            
+                error: function (e){                    
+                    console.log(e.responseText + ' Will retry pulling data...');
+                    getVariant(webapiURL);                
+                }    
+            })         
+        }
+
+        function generateWebApiURL(applied, array) {
+            debugger;
+            let baseURL = "https://dev-bdfvendorcollab.powerappsportals.com/_api/cr60a_stg_article_masters?";
+            // if(applied || array.length > 0) {
+            //     let projectFilter = " and _bdf_project_value@OData.Community.Display.V1.FormattedValue eq '" + filterArray[0].project + "'";
+            //     baseURL = baseURL + projectFilter;
+            // }
+            // baseURL += ')';
+            return baseURL;
+        }
+
+        $('ul#entitylist-filters li li #dropdown_3').change(function () {
+            filterButton = false;
+        });
+
+        $('button.btn-entitylist-filter-submit').click(function () {
+            filterButton = true;
+            dropdownText = $('ul#entitylist-filters li li #dropdown_3').val().trim();
+            minorCodeArray = [];
+            getMinorCode(generateWebApiURL4());
+        });
+
+        function searchQuery() {
+            debugger;
+            let searchQueryString = '';
+            let validDate = dateValidation(searchKey);
+
+            $('ul#entitylist-filters li li #dropdown_3').change(function () {
+                filterButton = false;
+            });
+
+            $('button.btn-entitylist-filter-submit').click(function () {
+                filterButton = true;
+                dropdownText = $('ul#entitylist-filters li li #dropdown_3').val().trim();
+            });
+
+                // searchQueryString += "&$expand=bdf_Generic($select=bdf_genericstage)";
+                searchQueryString += "$expand=bdf_Generic($select=bdf_genericstage)";
+                searchQueryString += "&$filter= bdf_Generic/bdf_genericstage ne 0 and bdf_globaldropstatus ne 1";
+
+            if (searchKey !== '') {
+                // Use $filter only when there is a search key
+                searchQueryString += " and (startswith(cr60a_articleid, '" + searchKey + "') or startswith(cr60a_vendorarticlenumber, '" + searchKey + "') or startswith(cr60a_articlename, '" + searchKey + "'))";
+            }
+
+
+            // Add family name condition if dropdownText is defined
+            if (dropdownText !== undefined && dropdownText !== null) {
+                searchQueryString += " and bdf_Generic/bdf_familyname eq '" + dropdownText + "'";
+            }
+
+            return searchQueryString;
+        }
+
+
+
+
+        function dateValidation(searchKey) {
+            let validDate;
+            try {
+                let tempKey = searchKey.split('/').length - 1 === 1 ? searchKey + "/" + moment().year() : searchKey;
+                let tempDate = new Date(tempKey);
+                validDate = tempDate instanceof Date && !isNaN(tempDate) ? formatDate(tempDate) : '';
+            }
+            catch (err) {
+                validDate = '';
+            }
+            return validDate;
+        }
+
+        function formatDate(date) {
+            let d = new Date(date),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2) 
+                month = '0' + month;
+            if (day.length < 2) 
+                day = '0' + day;
+
+            return [year, month, day].join('-');
+        }
+
+        // Attach a change event handler to the dropdown
+        $('ul#entitylist-filters li li #dropdown_3').change(function() {
+            // Update the value of selectedValue when the dropdown changes
+            dropdownValue = $(this).val();
+            
+            if (dropdownValue !== '') {
+                filterApplied = true;
+                filterArray = [{ 
+                    project: dropdownValue
+                }];
+            }
+        });
+
+        function getMinorCode(webapiURL4) {
+            webapi.safeAjax({
+                type: "GET",
+                url: webapiURL4,
+                contentType: "application/json",
+                success: function (res) {
+                    minorCodeArray.push.apply(minorCodeArray, res.value);
+     
+                    // Log the retrieved data to the console
+                    
+                    console.log("Retrieved data:", minorCodeArray);
+     
+                    if (typeof res['@odata.nextLink'] !== "undefined" && res['@odata.nextLink'] !== "") {
+                        getMinorCode(res['@odata.nextLink']);
+                    }
+                },
+                error: function (e) {
+                    console.log(e.responseText + ' Will retry pulling data...');
+                }
+            });
+        }
+     
+        function generateWebApiURL4() {
+            let selectedValue = $('ul#entitylist-filters li li #dropdown_3').val().trim(); // Trim leading and trailing whitespace
+            if (!selectedValue) {
+                // Handle the case where selectedValue is empty or contains only whitespace
+                console.error('Selected value is empty or contains only whitespace.');
+                // You can choose to return a default URL, throw an error, or handle it in another way.
+                // For now, returning an empty URL as an example.
+                return '';
+            }
+
+          let baseURL4 = "/_api/bdf_generics?$select=bdf_minorcodelookup&$filter=bdf_familyname eq '" + selectedValue + "' and bdf_genericstage ne 0&$orderby=bdf_familyname";
+            return baseURL4;
+        }
+
+
+        function fetchData(webapiURL, dataArray) {
+            webapi.safeAjax({
+                type: "GET",
+                url: webapiURL,
+                contentType: "application/json",
+                success: function (res) {
+                    dataArray.push.apply(dataArray, res.value);
+
+                    // Log the retrieved data to the console
+                    // console.log("Data:", dataArray);
+
+                    if (typeof res['@odata.nextLink'] !== "undefined" && res['@odata.nextLink'] !== "") {
+                        fetchData(res['@odata.nextLink'], dataArray);
+                    }
+                },
+                error: function (e) {
+                    console.log(e.responseText + ' Will retry pulling data...');
+                }
+            });
+        }
+
+        // Generic function to generate a web API URL
+        function generateWebApiURL5(entity, selectFields, orderBy) {
+            let baseURL5 = `/_api/${entity}?$select=${selectFields}&$orderby=${orderBy} asc`;
+            return baseURL5;
+        }
+
+     
+        function createExcelSheet() {
+            //getMinorCode(generateWebApiURL4());
+            const wb = new ExcelJS.Workbook();
+            const ws = wb.addWorksheet("Article Details", {
+                headerFooter: { firstHeader: "Article Details" }
+            });
+             
+            // Step 1: Create "MasterData" sheet
+            const masterDataSheet = wb.addWorksheet('MasterData');
+            masterDataSheet.state = 'veryHidden';
+            const minorCode = minorCodeArray.length > 0 ? minorCodeArray[0].bdf_minorcodelookup : null;
+            const commonColumns =  [
+                    {
+                        header: "Article ID",
+                        key: "cr60a_articleid",
+                        width: 15
+                    },
+                    {
+                        header: "Article Name",
+                        key: "cr60a_articlename",
+                        width: 15
+                    },
+                    {
+                        header: "Vendor Article Number",
+                        key: "cr60a_vendorarticlenumber",
+                        width: 15
+                    },
+                    {
+                        header: "Merch Cost",
+                        key: "bdf_cost",
+                        width: 15
+                    },
+                    {
+                        header: "Out of Packaging Length",
+                        key: "bdf_outofpackaginglength",
+                        width: 15
+                    },
+                    {
+                        header: "Out of Packaging Width",
+                        key: "bdf_outofpackagingwidth",
+                        width: 15
+                    },
+                    {
+                        header: "Out of Packaging Height",
+                        key: "bdf_outofpackagingheight",
+                        width: 15
+                    },
+                    {
+                        header: "Volume (In Carton) ",
+                        key: "bdf_outofpackagingvolume",
+                        width: 15
+                    },
+                    {
+                        header: "Out of Packaging Weight",
+                        key: "bdf_outofpackagingweight",
+                        width: 15
+                    },
+                    {
+                        header: "In Packaging Length",
+                        key: "bdf_inpackaginglength",
+                        width: 15
+                    },
+                    {
+                        header: "In Packaging Width",
+                        key: "bdf_inpackagingwidth",
+                        width: 15
+                    },
+                    {
+                        header: "In Packaging Height",
+                        key: "bdf_inpackagingheight",
+                        width: 15
+                    },
+                    {
+                        header: "Volume (Auto Calculated) ",
+                        key: "bdf_inpackagingvolume",
+                        width: 15
+                    },
+                    {
+                        header: "In Packaging Weight",
+                        key: "bdf_inpackagingweight",
+                        width: 15
+                    },
+                    {
+                        header: "Product Type",
+                        key: "_cr60a_producttype_value@OData.Community.Display.V1.FormattedValue",
+                        width: 15
+                    },
+                    {
+                        header: "Product Sub Type",
+                        key: "_cr60a_productsubtype_value@OData.Community.Display.V1.FormattedValue",
+                        width: 15
+                    },
+                    {
+                        header: "Size",
+                        key: "_cr60a_size_value@OData.Community.Display.V1.FormattedValue",
+                        width: 15
+                    },
+                    {
+                        header: "Height",
+                        key: "_cr60a_height_value@OData.Community.Display.V1.FormattedValue",
+                        width: 15
+                    },
+                    {
+                        header: "Specific Material",
+                        key: "bdf_specificmaterial",
+                        width: 15
+                    },
+                    {
+                        header: "Specific Color",
+                        key: "cr60a_specificcolor",
+                        width: 15
+                    },
+                    {
+                        header: "Specific Finish",
+                        key: "cr60a_specificfinish",
+                        width: 15
+                    },
+                ];
+
+
+           if (minorCode) {
+                if (minorCode.match(/^(2010|2020|4530|5550)$/)) {
+                    // variant attributes- bedding
+                    ws.columns = commonColumns.concat([
+                       
+                        {
+                            header: "Mattress Feel",
+                            key: "_cr60a_mattressfeel_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                         {
+                            header: "Mattress Firmness",
+                            key: "_cr60a_mattressfirmness_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Mattress Highlight",
+                            key: "cr60a_mattresshighlight",
+                            width: 15
+                        },
+                        {
+                            header: "Mattress Layer",
+                            key: "cr60a_mattresslayer",
+                            width: 15
+                        },
+                        {
+                            header: "Mattress Tailoring",
+                            key: "_cr60a_mattresstailoring_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Mattress Thickness",
+                            key: "cr60a_mattressthickness",
+                            width: 15
+                        },
+                        {
+                            header: "Recommended Mattress Height",
+                            key: "cr60a_recommendedmattressheight",
+                            width: 15
+                        },
+                         {
+                            header: "Temperature Regulation",
+                            key: "cr60a_temperatureregulation",
+                            width: 15
+                        },
+                         {
+                            header: "Pressure Relief",
+                            key: "cr60a_pressurerelief",
+                            width: 15
+                        },
+                        {
+                            header: "Motion Isolation",
+                            key: "cr60a_motionisolation",
+                            width: 15
+                        },
+                        {
+                            header: "#Slats/Leaf",
+                            key: "cr60a_numberofslat",
+                            width: 15
+                        },
+                    ]);
+                } else if (minorCode.match(/^(1010|1030|1040|1050|1060|1540|1580|5020|5510|5515|5580)$/)) {
+                    // variant attributes - living
+                    ws.columns = commonColumns.concat([
+                        {
+                            header: "Number of Pillow",
+                            key: "_cr60a_numberofpillow_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Arm Style",
+                            key: "_cr60a_armstyle_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Arm Height",
+                            key: "cr60a_armheight",
+                            width: 15
+                        },
+                        {
+                            header: "Arm Thickness/Leaf Width/Umbrella Size",
+                            key: "cr60a_armthickness",
+                            width: 15
+                        },
+                        {
+                            header: "Cup Holder Type",
+                            key: "_cr60a_cupholdertype_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                         {
+                            header: "Fill Material",
+                            key: "_cr60a_fillmaterial_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Shape",
+                            key: "_cr60a_shape_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Number of Seat",
+                            key: "_cr60a_numberofseat_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Seat Height",
+                            key: "cr60a_seatheight",
+                            width: 15
+                        },
+                        {
+                            header: "Seat Width",
+                            key: "cr60a_seatwidth",
+                            width: 15
+                        },
+                        {
+                            header: "Seat Depth",
+                            key: "cr60a_seatdepth",
+                            width: 15
+                        },
+                        {
+                            header: "Seat Back Height",
+                            key: "cr60a_seatbackheight",
+                            width: 15
+                        },
+                        {
+                            header: "Seat Cushion Thickness",
+                            key: "cr60a_seatcushionthickness",
+                            width: 15
+                        },
+                         {
+                            header: "Side Facing",
+                            key: "_cr60a_sidefacing_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Pattern",
+                            key: "_cr60a_pattern_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Wall Clearance",
+                            key: "cr60a_wallclearance",
+                            width: 15
+                        },
+                        {
+                            header: "Full Recline Depth",
+                            key: "cr60a_fullreclinedepth",
+                            width: 15
+                        },
+                        {
+                            header: "Construction",
+                            key: "_cr60a_construction_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Additional Dimension ",
+                            key: "cr60a_additionaldimension",
+                            width: 15
+                        },
+                        {
+                            header: "Product Care",
+                            key: "_cr60a_productcare_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Weight Limit",
+                            key: "cr60a_weightlimit",
+                            width: 15
+                        },
+                        
+                    ]);
+                } else if (minorCode.match(/^(1530|1535|2030|2540|5530|5535|5540)$/)) {
+                    //variant attributes - bedroom
+                    ws.columns = commonColumns.concat([
+                        
+                        {
+                            header: "#Slats/Leaf",
+                            key: "cr60a_numberofslat",
+                            width: 15
+                        },
+                        {
+                            header: "Number of Drawer",
+                            key: "_cr60a_numberofdrawer_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                         
+                        {
+                            header: "Recommended Mattress Height",
+                            key: "cr60a_recommendedmattressheight",
+                            width: 15
+                        },
+                        {
+                            header: "Design",
+                            key: "_cr60a_design_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 1",
+                            key: "_cr60a_feature1_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 2",
+                            key: "_cr60a_feature2_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 3",
+                            key: "_cr60a_feature3_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 4",
+                            key: "_cr60a_feature4_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 5",
+                            key: "_cr60a_feature5_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 6",
+                            key: "_cr60a_feature6_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 7",
+                            key: "_cr60a_feature7_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 8",
+                            key: "_cr60a_feature8_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 9",
+                            key: "_cr60a_feature9_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 10",
+                            key: "_cr60a_feature10_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Weight Limit",
+                            key: "cr60a_weightlimit",
+                            width: 15
+                        }
+                    ]);
+                } else if (minorCode.match(/^(1020|1510|1520|1550|1560|5010|5545|5555)$/)) {
+                    //variant attributes - dining
+                    ws.columns = commonColumns.concat([
+                        
+                        {
+                            header: "Shape",
+                            key: "_cr60a_shape_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Number of Seat",
+                            key: "_cr60a_numberofseat_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Top Material Group",
+                            key: "_cr60a_topmaterialgroup_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Seat Height",
+                            key: "cr60a_seatheight",
+                            width: 15
+                        },
+                        {
+                            header: "Seat Width",
+                            key: "cr60a_seatwidth",
+                            width: 15
+                        },
+                        {
+                            header: "Seat Depth",
+                            key: "cr60a_seatdepth",
+                            width: 15
+                        },
+                        {
+                            header: "Seat Back Height",
+                            key: "cr60a_seatbackheight",
+                            width: 15
+                        },
+                        {
+                            header: "#Slats/Leaf",
+                            key: "cr60a_numberofslat",
+                            width: 15
+                        },
+                        {
+                            header: "Number of Drawer",
+                            key: "_cr60a_numberofdrawer_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Weight Limit",
+                            key: "cr60a_weightlimit",
+                            width: 15
+                        },
+                        {
+                            header: "Pattern",
+                            key: "_cr60a_pattern_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Seat Specific Color",
+                            key: "cr60a_seatspecificcolor",
+                            width: 15
+                        },
+                        {
+                            header: "Seat Material",
+                            key: "cr60a_seatmaterial",
+                            width: 15
+                        },
+                        {
+                            header: "Product Care",
+                            key: "_cr60a_productcare_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                    ]);
+                } else if (minorCode.match(/^(3010|3020|3030)$/)) {
+                    //variant attributes - lighting
+                   ws.columns = commonColumns.concat([
+                        {
+                            header: "Number of Bulb",
+                            key: "_cr60a_numberofbulb_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Bulb Wattage",
+                            key: "_cr60a_bulbwattage_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Switch Style",
+                            key: "cr60a_pcmswitchstyle",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 1",
+                            key: "_cr60a_feature1_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 2",
+                            key: "_cr60a_feature2_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 3",
+                            key: "_cr60a_feature3_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 4",
+                            key: "_cr60a_feature4_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 5",
+                            key: "_cr60a_feature5_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                    ]);
+                } else if (minorCode.match(/^(4040|5595)$/)) {
+                    //variant attributes - rug
+                  ws.columns = commonColumns.concat([
+                        
+                        {
+                            header: "Rug Pile Height",
+                            key: "_cr60a_rugpileheight_value",
+                            width: 15
+                        },
+                        {
+                            header: "Pattern",
+                            key: "_cr60a_pattern_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Shape",
+                            key: "_cr60a_shape_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                       
+                        {
+                            header: "Additional Dimension",
+                            key: "cr60a_additionaldimension",
+                            width: 15
+                        },
+                        {
+                            header: "Product Care",
+                            key: "_cr60a_productcare_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 1",
+                            key: "_cr60a_feature1_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 2",
+                            key: "_cr60a_feature2_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 3",
+                            key: "_cr60a_feature3_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 4",
+                            key: "_cr60a_feature4_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Feature 5",
+                            key: "_cr60a_feature5_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                    ]);
+                } else if (minorCode.match(/^(1570|2510|2520|2530|4010|4030|4110|5030|5560|5590|4510|4520)$/)) {
+                    //variant attributes - DTC
+                    ws.columns = commonColumns.concat([
+                        
+                        {
+                            header: "Fill Material",
+                            key: "_cr60a_fillmaterial_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                         {
+                            header: "Window Treatment Header",
+                            key: "_cr60a_windowtreatmentheader_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Artwork Type/Subject",
+                            key: "_cr60a_artworktypesubject_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Arm Height",
+                            key: "cr60a_armheight",
+                            width: 15
+                        },
+                        {
+                            header: "Arm Thickness/Leaf Width/Umbrella Size",
+                            key: "cr60a_armthickness",
+                            width: 15
+                        },
+                        {
+                            header: "Pattern",
+                            key: "_cr60a_pattern_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Additional Dimension",
+                            key: "cr60a_additionaldimension",
+                            width: 15
+                        },
+                        {
+                            header: "Product Care",
+                            key: "_cr60a_productcare_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                    ]);
+                } 
+                
+            } else {
+                    // outlet
+                    ws.columns = commonColumns.concat([
+                        {
+                            header: "Size",
+                            key: "_cr60a_size_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                        {
+                            header: "Height",
+                            key: "_cr60a_height_value@OData.Community.Display.V1.FormattedValue",
+                            width: 15
+                        },
+                    ]);
+                }
+                
+                function autoSizeColumns(worksheet) {
+                    worksheet.columns.forEach(column => {
+                        let maxLength = 0;
+                        column.eachCell({ includeEmpty: true }, cell => {
+                            const length = cell.value ? cell.value.toString().length : 0;
+                            maxLength = Math.max(maxLength, length);
+                        });
+                        column.width = maxLength + 2; // Add some padding for better readability
+                    });
+                }
+
+
+
+
+            ws.addRows(variantArray);
+            autoSizeColumns(ws);
+           // ws.protect("BOBSTEMPLATES", {formatColumns: true});
+
+           
+            
+            //  //converting boolean columns as yes/ no instead of true or false, making it as a dropdown
+            // var booleanColumns = ["cr60a_assemblyrequired", "cr60a_bobopedicindicator", "bdf_platformstoragecompatibleind"];
+            // for (var i = 0; i < booleanColumns.length; i++) {
+            //     var column = ws.getColumn(booleanColumns[i]);
+            //     column.eachCell({
+            //         includeEmpty: true
+            //     }, function(cell, rowNumber) {
+            //         if (rowNumber > 1) {
+            //             // Add a null check before accessing toString()
+            //             if (cell.value !== null && cell.value !== undefined) {
+            //                 if (cell.value.toString().toLowerCase() == "true") {
+            //                     cell.value = "Yes";
+            //                 } else if (cell.value.toString().toLowerCase() == "false") {
+            //                     cell.value = "No";
+            //                 }
+
+            //                 cell.dataValidation = {
+            //                     type: "list",
+            //                     allowBlank: true,
+            //                     formulae: ['"Yes,No"'],
+            //                     showErrorMessage: true,
+            //                     errorTitle: 'Invalid Entry',
+            //                     error: 'Please select a value from the dropdown list.',
+            //                 };
+            //             }
+            //         }
+            //     });
+            // }
+
+
+            
+
+
+           function setDropdownValues(ws, columnLetter, dataArray, dataKey, masterDataColumn) {
+                // Check if the column exists in the worksheet
+                const targetColumn = ws.columns.find(column => column._key === columnLetter);
+
+                if (!targetColumn) {
+                    // Column not found, return or handle accordingly
+                    console.log(`Column ${columnLetter} not found in the worksheet`);
+                    return;
+                }
+
+                // Store dropdown values in the specified column in "MasterData"
+                const datamainarray = dataArray.map(item => item[dataKey]);
+                masterDataSheet.getColumn(masterDataColumn).values = [''].concat(datamainarray);
+
+                // Set data validation for dropdown
+                targetColumn.eachCell({
+                    includeEmpty: true
+                }, function (cell, rowNumber) {
+                    if (rowNumber > 1) {
+                        cell.dataValidation = {
+                            type: 'list',
+                            formulae: ['MasterData' + '!' + masterDataColumn + '$2:' + masterDataColumn + '$' + (datamainarray.length + 1)],
+                            allowBlank: true,
+                            showErrorMessage: true,
+                            errorTitle: 'Invalid Entry',
+                            error: 'Please select a value from the dropdown list.',
+                        };
+                    }
+                });
+            }
+
+            // function productTypeDropdown (ws, columnLetter, dataArray, dataKey, masterDataColumn) {
+            //     // Check if the column exists in the worksheet
+            //     const targetColumn = ws.columns.find(column => column._key === columnLetter);
+            // }
+
+
+
+
+            setDropdownValues(ws, '_cr60a_finishgroup_value@OData.Community.Display.V1.FormattedValue', finishGroupArray, 'cr60a_code','A');
+            setDropdownValues(ws, '_cr60a_colorgroup_value@OData.Community.Display.V1.FormattedValue',  colorGroupArray, 'cr60a_code','B');
+            setDropdownValues(ws, '_cr60a_materialgroup_value@OData.Community.Display.V1.FormattedValue', frameMaterialGroupArray, 'cr60a_code','C');
+            setDropdownValues(ws, '_cr60a_upholsterymaterialgroup_value@OData.Community.Display.V1.FormattedValue',   upholsterymaterialGroupArray, 'cr60a_code','D');
+            setDropdownValues(ws, '_cr60a_style_value@OData.Community.Display.V1.FormattedValue', stylesArray, 'cr60a_code', 'E');
+            setDropdownValues(ws, '_cr60a_producttype_value@OData.Community.Display.V1.FormattedValue', productTypeArray, 'cr60a_code','F');
+            setDropdownValues(ws, '_cr60a_productsubtype_value@OData.Community.Display.V1.FormattedValue', productsubTypeArray, 'cr60a_code','G');
+            setDropdownValues(ws, '_cr60a_size_value@OData.Community.Display.V1.FormattedValue', sizesArray, 'cr60a_code','H');
+            setDropdownValues(ws, '_cr60a_height_value@OData.Community.Display.V1.FormattedValue', heightsArray, 'cr60a_code','I');
+            setDropdownValues(ws, '_cr60a_mattressfeel_value@OData.Community.Display.V1.FormattedValue', mattressfeelsarray, 'cr60a_code','J');
+            setDropdownValues(ws, '_cr60a_numberofseat_value@OData.Community.Display.V1.FormattedValue', numberOfSeatsArray, 'cr60a_code','K');
+            setDropdownValues(ws, '_cr60a_shape_value@OData.Community.Display.V1.FormattedValue', shapesArray, 'cr60a_code','L');
+            setDropdownValues(ws, '_cr60a_sidefacing_value@OData.Community.Display.V1.FormattedValue', sideFacingArray, 'cr60a_code','M');
+            setDropdownValues(ws, '_cr60a_armstyle_value@OData.Community.Display.V1.FormattedValue', armStylesArray, 'cr60a_code','O');
+            setDropdownValues(ws, '_cr60a_pattern_value@OData.Community.Display.V1.FormattedValue', patternsArray, 'cr60a_code','P');
+            setDropdownValues(ws, '_cr60a_numberofdrawer_value@OData.Community.Display.V1.FormattedValue', numberOfDrawersArray, 'cr60a_code','Q');
+            setDropdownValues(ws, '_cr60a_numberofseat_value@OData.Community.Display.V1.FormattedValue', numberOfSeatsArray, 'cr60a_code','R');
+            setDropdownValues(ws, '_cr60a_topmaterialgroup_value@OData.Community.Display.V1.FormattedValue',topMaterialGroupsArray, 'cr60a_code','S');
+            setDropdownValues(ws, '_cr60a_numberofbulb_value@OData.Community.Display.V1.FormattedValue', numberOfBulbsArray, 'cr60a_code','T');
+            //setDropdownValues(ws, '_cr60a_numberofbulb_value@OData.Community.Display.V1.FormattedValue', numberOfBulbsArray, 'cr60a_code','U');
+            setDropdownValues(ws, '_cr60a_productcare_value@OData.Community.Display.V1.FormattedValue', productCareArray, 'cr60a_code','U');
+            setDropdownValues(ws, '_cr60a_bulbwattage_value@OData.Community.Display.V1.FormattedValue', bulbWattagesArray, 'cr60a_code','V');
+            setDropdownValues(ws, '_cr60a_rugpileheight_value@OData.Community.Display.V1.FormattedValue', rugPileHeightsArray, 'cr60a_code','W');
+            setDropdownValues(ws, '_cr60a_artworktypesubject_value@OData.Community.Display.V1.FormattedValue', artworktypesArray, 'cr60a_code','X');
+            setDropdownValues(ws, '_cr60a_cupholdertype_value@OData.Community.Display.V1.FormattedValue', cupHoldersTypesArray, 'cr60a_code','Y');
+            setDropdownValues(ws, '_cr60a_fillmaterial_value@OData.Community.Display.V1.FormattedValue', fillMaterialsArray, 'cr60a_code','Z');
+            setDropdownValues(ws, '_cr60a_construction_value@OData.Community.Display.V1.FormattedValue', constructionsArray, 'cr60a_code','AA');
+            setDropdownValues(ws, '_cr60a_design_value@OData.Community.Display.V1.FormattedValue', designsArray, 'cr60a_code','AB');
+            setDropdownValues(ws, '_cr60a_feature1_value@OData.Community.Display.V1.FormattedValue', featuresArray, 'cr60a_code','AC');
+            setDropdownValues(ws, '_cr60a_feature2_value@OData.Community.Display.V1.FormattedValue', featuresArray, 'cr60a_code','AD');
+            setDropdownValues(ws, '_cr60a_feature3_value@OData.Community.Display.V1.FormattedValue', featuresArray, 'cr60a_code','AE');
+            setDropdownValues(ws, '_cr60a_feature4_value@OData.Community.Display.V1.FormattedValue', featuresArray, 'cr60a_code','AF');
+            setDropdownValues(ws, '_cr60a_feature5_value@OData.Community.Display.V1.FormattedValue', featuresArray, 'cr60a_code','AG');
+            setDropdownValues(ws, '_cr60a_feature6_value@OData.Community.Display.V1.FormattedValue', featuresArray, 'cr60a_code','AH');
+            setDropdownValues(ws, '_cr60a_feature7_value@OData.Community.Display.V1.FormattedValue', featuresArray, 'cr60a_code','AI');
+            setDropdownValues(ws, '_cr60a_feature8_value@OData.Community.Display.V1.FormattedValue', featuresArray, 'cr60a_code','AI');
+            setDropdownValues(ws, '_cr60a_feature9_value@OData.Community.Display.V1.FormattedValue', featuresArray, 'cr60a_code','AJ');
+            setDropdownValues(ws, '_cr60a_feature10_value@OData.Community.Display.V1.FormattedValue', featuresArray, 'cr60a_code','AK');
+            setDropdownValues(ws, '_cr60a_mattressfirmness_value@OData.Community.Display.V1.FormattedValue', mattressFirmnessArray, 'cr60a_code','AL');
+            setDropdownValues(ws, '_cr60a_mattresstailoring_value@OData.Community.Display.V1.FormattedValue', mattressTailoringArray, 'cr60a_code','AM');
+            setDropdownValues(ws, '_cr60a_windowtreatmentheader_value@OData.Community.Display.V1.FormattedValue', windowTreatmentHeaderArray, 'cr60a_name','AN');
+
+
+
+        ///Populate Product Subtype, size and height sheets for filtering
+
+                // Function to populate "Product Sub Type" sheet with values
+                function populateProductsubtypeSheet(wb, productsubTypeArray) {
+                    // Sort the productsubTypeArray based on the main category
+                    productsubTypeArray.sort((a, b) => {
+                        const categoryA = a['cr60a_code'].split(':')[0]; // Extract main category
+                        const categoryB = b['cr60a_code'].split(':')[0];
+                        return categoryA.localeCompare(categoryB);
+                    });
+
+                    const productsubtypeSheet = wb.addWorksheet('Productsubtype');
+                    productsubtypeSheet.state = 'veryHidden';
+                    // Add headers
+                    productsubtypeSheet.getColumn('A').values = productsubTypeArray.map(item => item['cr60a_code']);
+                    productsubtypeSheet.getColumn('B').values = productsubTypeArray.map(item => {
+                        const category = item['cr60a_code'].split(':')[0]; // Extract main category
+                        return category;
+                    });
+
+                }
+
+                populateProductsubtypeSheet(wb, productsubTypeArray);
+            
+
+            // Function to populate "Size" sheet with values
+                function populateSizeSheet(wb, sizesArray) {
+                    // Sort the sizesArray based on the main category
+                    sizesArray.sort((a, b) => {
+                        const categoryA = a['cr60a_code'].split(':')[0]; // Extract main category
+                        const categoryB = b['cr60a_code'].split(':')[0];
+                        return categoryA.localeCompare(categoryB);
+                    });
+
+                    const sizeSheet = wb.addWorksheet('Size');
+                    sizeSheet.state = 'veryHidden';
+
+                    // Add headers
+                    sizeSheet.getColumn('A').values = sizesArray.map(item => item['cr60a_code']);
+                    sizeSheet.getColumn('B').values = sizesArray.map(item => {
+                        const category = item['cr60a_code'].split(':')[0]; // Extract main category
+                        return category;
+                    });
+
+                }
+
+                populateSizeSheet(wb, sizesArray);
+
+
+                // Function to populate "Height" sheet with values
+                function populateHeightSheet(wb, heightsArray) {
+                    // Sort the heightsArray based on the main category
+                    heightsArray.sort((a, b) => {
+                        const categoryA = a['cr60a_code'].split(':')[0]; // Extract main category
+                        const categoryB = b['cr60a_code'].split(':')[0];
+                        return categoryA.localeCompare(categoryB);
+                    });
+
+                    const heightSheet = wb.addWorksheet('Height');
+                    heightSheet.state = 'veryHidden';
+
+                    // Add headers
+                    heightSheet.getColumn('A').values = heightsArray.map(item => item['cr60a_code']);
+                    heightSheet.getColumn('B').values = heightsArray.map(item => {
+                        const category = item['cr60a_code'].split(':')[0]; // Extract main category
+                        return category;
+                    });
+
+                }
+
+                populateHeightSheet(wb, heightsArray);
+            
+
+//Add data validation for filtering dropdowns
+
+            //Product Sub Type
+                function addProductsubtypeDataValidation(ws) {
+                    const productsubtypeColumn = ws.getColumn('P'); 
+
+                    productsubtypeColumn.eachCell({
+                        includeEmpty: true
+                    }, function (cell, rowNumber) {
+                        if (rowNumber > 1) {
+                            cell.dataValidation = {
+                                type: 'list',
+                                formulae: [`=OFFSET(Productsubtype!$A$1, MATCH(O${rowNumber},Productsubtype!B:B,0)-1, 0,COUNTIF(Productsubtype!B:B,O${rowNumber}),1)`],
+                                showErrorMessage: true,
+                                errorTitle: 'Invalid Entry',
+                                error: 'Please select a value from the dropdown list.',
+                            };
+                        }
+                    });
+                }
+
+                // After populating "Article Details" and "productsubtype" sheets
+                addProductsubtypeDataValidation(ws);
+
+            //Size
+                function addSizeDataValidation(ws) {
+                    const sizeColumn = ws.getColumn('Q'); 
+
+                    sizeColumn.eachCell({
+                        includeEmpty: true
+                    }, function (cell, rowNumber) {
+                        if (rowNumber > 1) {
+                            cell.dataValidation = {
+                                type: 'list',
+                                formulae: [`=OFFSET(Size!$A$1, MATCH(O${rowNumber},Size!B:B,0)-1, 0,COUNTIF(Size!B:B,O${rowNumber}),1)`],
+                                showErrorMessage: true,
+                                errorTitle: 'Invalid Entry',
+                                error: 'Please select a value from the dropdown list.',
+                            };
+                        }
+                    });
+                }
+
+                // After populating "Article Details" and "Size" sheets
+                addSizeDataValidation(ws);
+
+
+                //Height
+                function addHeightDataValidation(ws) {
+                    const heightColumn = ws.getColumn('R'); 
+
+                    heightColumn.eachCell({
+                        includeEmpty: true
+                    }, function (cell, rowNumber) {
+                        if (rowNumber > 1) {
+                            cell.dataValidation = {
+                                type: 'list',
+                                formulae: [`=OFFSET(Height!$A$1, MATCH(O${rowNumber},Height!B:B,0)-1, 0,COUNTIF(Height!B:B,O${rowNumber}),1)`],
+                                showErrorMessage: true,
+                                errorTitle: 'Invalid Entry',
+                                error: 'Please select a value from the dropdown list.',
+                            };
+                        }
+                    });
+                }
+
+                // After populating "Article Details" and "height" sheets
+                addHeightDataValidation(ws);
+
+
+
+            // // Unlock all cells
+            // ws.eachRow(function (row, rowNumber) {
+            //     row.eachCell(function (cell, colNumber) {
+            //         // Unlock all cells
+            //         cell.protection = {
+            //             locked: false
+            //         };
+            //     });
+            // });
+
+
+             // Apply background color for locked cells and unlock editiable cells
+            ws.eachRow(function (row, rowNumber) {
+                if (rowNumber == 1) {
+                    row.eachCell(function (cell, colNumber) {
+                        cell.font = {
+                            name: "Arial",
+                            color: { argb: "000000" },
+                            bold: true,
+                            size: 10
+                        };
+                        cell.fill = {
+                            type: "pattern",
+                            pattern: "solid",
+                            fgColor: { argb: "C4D79B" }
+                        };
+                    });
+                }
+                // } else if (rowNumber > 1) {
+                //     row.eachCell({ includeEmpty: true }, function (cell, colNumber) {
+                //         // if (colNumber < 12) {
+                //         //     cell.fill = {
+                //         //         type: "pattern",
+                //         //         pattern: "solid",
+                //         //         fgColor: { argb: "FFF2CC" }
+                //         //     };
+                //         // } else {                                        
+                //             cell.protection = {
+                //            locked: false
+                //             };
+                //         // }
+                //     });
+                //     // row.eachCell({ includeEmpty: true }, function(cell, colNumber) {
+                //     //     if (!lockedColumns.includes(cell._column.letter)) {
+                //     //         cell.protection = {
+                //     //             locked: false
+                //     //         };
+                //     //     }
+                //     // });
+                // }
+            });
+
+            // Unlock all cells
+            ws.eachRow(function (row, rowNumber) {
+                row.eachCell(function (cell, colNumber) {
+                    // Unlock all cells
+                    cell.protection = {
+                        locked: false
+                    };
+                });
+            });
+
+            //locking the columns and giving them color
+            var lockedColumns = ["cr60a_articleid","cr60a_articlename","cr60a_vendorarticlenumber","bdf_inpackagingvolume"];
+            for (var i = 0; i < lockedColumns.length; i++) {
+            var lockColumn = ws.getColumn(lockedColumns[i]);
+            lockColumn.eachCell({ includeEmpty: true }, function (
+                cell,
+                rowNumber
+            ) {
+                if (rowNumber > 1) {
+                cell.protection = {
+                    locked: true
+                };
+                cell.fill = {
+                                type: "pattern",
+                                pattern: "solid",
+                                fgColor: { argb: "FFF2CC" }
+                };
+                }
+            });
+            }
+            
+
+            let dateStamp =formatDate(Date.now());
+
+            wb.xlsx.writeBuffer().then(function (buffer) {
+                saveAs(
+                    new Blob([buffer], { type: "application/octet-stream" }),
+                    "Article Template (" + dateStamp + ").xlsx"
+                );
+            });
+
+        }
+
+        $(".entitylist.entity-grid").on("loaded", function () {
+            //debugger;
+            
+            // Detect search icon button
+            $('span.fa-search').parent().parent().click(function(){
+                searchKey = $('div.entitylist-search input')[0].value !== '' ? $('div.entitylist-search input')[0].value : '';
+            });
+            // Detect search input box enter
+            $('div.entitylist-search input').keypress(function(event){
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if(keycode == '13'){
+                    searchKey = $('div.entitylist-search input')[0].value !== '' ? $('div.entitylist-search input')[0].value : '';
+                }
+            });
+            
+            // let additionalButton = "<a id='tempDownloadButt' href='#' class='entitylist-download btn btn-info pull-right action' title='Download Template'>Download Articles</a>";
+            let additionalButton = "<a id='tempDownloadButt' href='#' class='entitylist-download btn btn-info pull-right action' title='Download Template'><span class='icon'></span> Download Articles</a>";
+            if($('a#tempDownloadButt').length === 0) {
+                $('a.entitylist-download').hide();
+                $('div.toolbar-actions div:nth-child(2).pull-left').append(additionalButton);
+                $('a#tempDownloadButt').click(function(){
+                    debugger;
+                    $('#processingMsg').css("width","200px !important");
+                    notificationMsg.show("Generating Templates...")
+                    getVariant(generateWebApiURL(filterApplied,filterArray)+searchQuery());
+                    // getMinorCode(generateWebApiURL4());
+                    fetchData(generateWebApiURL5('cr60a_finishgroups', 'cr60a_code, cr60a_finishgroupid', 'cr60a_code'), finishGroupArray);
+                    fetchData(generateWebApiURL5('cr60a_colorgroups', 'cr60a_code, cr60a_colorgroupid', 'cr60a_code'), colorGroupArray);
+                    fetchData(generateWebApiURL5('cr60a_materialgroups', 'cr60a_code, cr60a_materialgroupid', 'cr60a_code'), frameMaterialGroupArray);
+                    fetchData(generateWebApiURL5('cr60a_upholsterymaterialgroups', 'cr60a_code, cr60a_upholsterymaterialgroupid', 'cr60a_code'), upholsterymaterialGroupArray);
+                    fetchData(generateWebApiURL5('cr60a_ref_styles', 'cr60a_code, cr60a_ref_styleid', 'cr60a_code'), stylesArray);
+                    fetchData(generateWebApiURL5('cr60a_producttypes', 'cr60a_code, cr60a_producttypeid', 'cr60a_code'), productTypeArray);
+                    fetchData(generateWebApiURL5('cr60a_productsubtypes', 'cr60a_code, cr60a_productsubtypeid', 'cr60a_code'), productsubTypeArray);
+                    fetchData(generateWebApiURL5('cr60a_sizes', 'cr60a_code, cr60a_sizeid', 'cr60a_code'), sizesArray);
+                    fetchData(generateWebApiURL5('cr60a_heights', 'cr60a_code, cr60a_heightid', 'cr60a_code'), heightsArray);
+                    fetchData(generateWebApiURL5('cr60a_mattressfeels', 'cr60a_code, cr60a_mattressfeelid', 'cr60a_code'), mattressfeelsarray);
+                    fetchData(generateWebApiURL5('cr60a_numberofseats', 'cr60a_code, cr60a_numberofseatid', 'cr60a_code'), numberOfSeatsArray);
+                    fetchData(generateWebApiURL5('cr60a_shapes', 'cr60a_code, cr60a_shapeid', 'cr60a_code'), shapesArray);
+                    fetchData(generateWebApiURL5('cr60a_sidefacings', 'cr60a_code, cr60a_sidefacingid', 'cr60a_code'), sideFacingArray);
+                    fetchData(generateWebApiURL5('cr60a_armstyles', 'cr60a_code, cr60a_armstyleid', 'cr60a_code'), armStylesArray);
+                    fetchData(generateWebApiURL5('cr60a_patterns', 'cr60a_code, cr60a_patternid', 'cr60a_code'), patternsArray);
+                    fetchData(generateWebApiURL5('cr60a_numberofdrawers', 'cr60a_code, cr60a_numberofdrawerid', 'cr60a_code'), numberOfDrawersArray);
+                    fetchData(generateWebApiURL5('cr60a_numberofseats', 'cr60a_code, cr60a_numberofseatid', 'cr60a_code'), numberOfSeatsArray);
+                    fetchData(generateWebApiURL5('cr60a_topmaterialgroups', 'cr60a_code, cr60a_topmaterialgroupid', 'cr60a_code'), topMaterialGroupsArray);
+                    fetchData(generateWebApiURL5('cr60a_numberofbulbs', 'cr60a_code, cr60a_numberofbulbid', 'cr60a_code'), numberOfBulbsArray);
+                    fetchData(generateWebApiURL5('cr60a_bulbwattages', 'cr60a_code, cr60a_bulbwattageid', 'cr60a_code'), bulbWattagesArray);
+                    fetchData(generateWebApiURL5('cr60a_rugpileheights', 'cr60a_code, cr60a_rugpileheightid', 'cr60a_code'), rugPileHeightsArray);
+                    fetchData(generateWebApiURL5('cr60a_artworktypesubjects', 'cr60a_code, cr60a_artworktypesubjectid', 'cr60a_code'), artworktypesArray);
+                    fetchData(generateWebApiURL5('cr60a_productcares', 'cr60a_code, cr60a_productcareid', 'cr60a_code'), productCareArray);
+                    fetchData(generateWebApiURL5('cr60a_cupholdertypes', 'cr60a_code, cr60a_cupholdertypeid', 'cr60a_code'), cupHoldersTypesArray);
+                    fetchData(generateWebApiURL5('cr60a_fillmaterials', 'cr60a_code, cr60a_fillmaterialid', 'cr60a_code'), fillMaterialsArray);
+                    fetchData(generateWebApiURL5('cr60a_constructions', 'cr60a_code, cr60a_constructionid', 'cr60a_code'), constructionsArray);
+                    fetchData(generateWebApiURL5('cr60a_designs', 'cr60a_code, cr60a_designid', 'cr60a_code'),designsArray);
+                    fetchData(generateWebApiURL5('cr60a_features', 'cr60a_code, cr60a_featureid', 'cr60a_code'),featuresArray);
+                    fetchData(generateWebApiURL5('cr60a_mattressfirmnesses', 'cr60a_code, cr60a_mattressfirmnessid', 'cr60a_code'),mattressFirmnessArray);
+                    fetchData(generateWebApiURL5('cr60a_mattresstailorings', 'cr60a_code, cr60a_mattresstailoringid', 'cr60a_code'),mattressTailoringArray);
+                    fetchData(generateWebApiURL5('cr60a_codes', 'cr60a_name, cr60a_codeid', 'cr60a_name'),windowTreatmentHeaderArray);
+                    
+                    
+
+                    
+                    $(document).ajaxStop(async function () {
+                        $(document).off("ajaxStop"); 
+
+                        notificationMsg.hide();
+                        createExcelSheet();
+
+
+                        // Reset openPOArray
+                        variantArray = [];
+                        // Reset minorcodearray
+                        //minorCodeArray = [];
+
+                        finishGroupArray = [];
+                        colorGroupArray = [];
+                        frameMaterialGroupArray = [];
+                        upholsterymaterialGroupArray = [];
+                        stylesArray = [];
+                        productTypeArray = [];
+                        productsubTypeArray = [];
+                        sizesArray = [];
+                        heightsArray = [];
+                        mattressfeelsarray = [];
+
+                        numberOfSeatsArray = [];
+                        shapesArray = [];
+                        sideFacingArray = [];
+                        armStylesArray = [];
+                        patternsArray = [];
+                        numberOfDrawersArray = [];
+                        topMaterialGroupsArray = [];
+                        numberOfBulbsArray = [];
+                        bulbWattagesArray = [];
+                        rugPileHeightsArray = [];
+                        artworktypesArray = [];
+                        productCareArray = [];
+                        cupHoldersTypesArray = [];
+                        fillMaterialsArray = [];
+                        constructionsArray = [];
+                        designsArray = [];
+                        featuresArray = [];
+                        mattressFirmnessArray = [];
+                        mattressTailoringArray = [];
+                        windowTreatmentHeaderArray = [];
+                    });
+
+                });
+            }
+        
+        });
+
+    });
+</script>
+<style>
+    #tempDownloadButt {
+        position: relative;
+        display: inline-block;
+        padding-left: 35px;
+        background: #2C2C2C;
+        border-radius: 4px;
+        box-shadow: 0px -3px 8px black inset;
+    }
+
+    #tempDownloadButt .icon {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        background: url(/download.svg) no-repeat;
+        background-size: cover;
+        margin-right: 40px;
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+</style>
