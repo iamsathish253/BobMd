@@ -8,6 +8,8 @@
     let filterButton = false;
     let dropdownValue;
     let dropdownText;
+    let ProductType;
+    let vendorArticalNumber;
     let onloadDropDownValue;
     let searchKey = '';
     let minorCodeArray = [];
@@ -129,9 +131,22 @@
                 filterButton = false;
             });
 
+            // On Change of Product Type filterButton false
+            $('ul#entitylist-filters li li #dropdown_1').change(function () {
+                filterButton = false;
+            });
+
+            // On Change of Artical Number We are making filter button to false
+
+            $('ul#entitylist-filters li li #2').change(function () {
+                filterButton = false;
+            });
+
             $('button.btn-entitylist-filter-submit').click(function () {
                 filterButton = true;
                 dropdownText = $('ul#entitylist-filters li li #dropdown_3').val().trim();
+                ProductType=$('ul#entitylist-filters li li #dropdown_1').val().trim().slice(1,-1);
+                vendorArticalNumberText=$('ul#entitylist-filters li li #2').val().trim();
             });
 
                 // searchQueryString += "&$expand=bdf_Generic($select=bdf_genericstage)";
@@ -145,9 +160,22 @@
 
 
             // Add family name condition if dropdownText is defined
-            if (dropdownText !== undefined && dropdownText !== null) {
+            if (dropdownText !== undefined && dropdownText !== null && dropdownText!=='') {
                 searchQueryString += " and bdf_Generic/bdf_familyname eq '" + dropdownText + "'";
             }
+
+            // Adding ProductType Value to Qurey if Dropdown Value is Defined
+
+            if (ProductTypeText !== undefined && ProductTypeText !== null && ProductTypeText!=='') {
+                searchQueryString += "and _cr60a_producttype_value eq "+ProductType+"";
+            }
+
+            // Adding Artical Number to searchqQurey
+             
+            if (vendorArticalNumber !== undefined && vendorArticalNumber !== null && vendorArticalNumber!=='') {
+                searchQueryString += "and cr60a_vendorarticlenumber eq '"+vendorArticalNumber+"'";
+            }
+
 
             return searchQueryString;
         }
