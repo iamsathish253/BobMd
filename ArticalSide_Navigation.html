@@ -1,0 +1,757 @@
+<!-- Add this modal HTML at the end of your document -->
+<div class="modal1 fade" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="loadingModalLabel" aria-hidden="true">
+    <div class="modal-dialog1 modal-dialog-centered" role="document">
+        <div class="modal-content1">
+            <div class="modal-body1">
+                <img src="/loading.gif" alt="Loading" style="width:200px"/>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  <style>
+        .modal1 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1050;
+            display: none;
+            overflow: hidden;
+            outline: 0;
+        }
+  
+        .modal1.fade.show {
+            display: block;
+        }
+  
+        .modal-dialog1 {
+            position: relative;
+            width: 80%; 
+            max-width: 800px; 
+            margin: 10% auto; 
+        }
+  
+        .modal-content1 {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 0.3rem;
+            outline: 0;
+            height: 400px;
+            box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+        }
+  
+      .modal1-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1040;
+        width: 100vw;
+        height: 100vh;
+        background-color: black; /* Opaque grey background */
+        backdrop-filter: blur(10px); /* Apply blur effect */
+    }
+  
+  
+        .modal-body1 {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+  
+      
+    </style>
+  
+  <style>
+  /* Existing styles */
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    background: #FFE1D6;
+  }
+  
+  #mainContent {
+    background: white;
+      /* margin-top: 40px;
+      margin-left: 30px;
+      margin-right: 30px;
+      margin-bottom: 20px; */
+      margin: 40px 30px 30px 40px;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+  }
+  
+  .breadcrumb {
+    margin-top: 30px;
+    margin-left: 90px;
+  }
+  
+  #iq0u2n {
+    font-size: 24px;
+  }
+  
+  #articleListContainer,
+  #entityFormContainer {
+    flex: 1;
+    height: fit-content;
+    overflow-y: auto;
+  }
+  
+  .tab-pane.active {
+    display: block;
+  }
+  
+  .list-group {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .nav-tabs {
+    box-shadow: -5px 0 5px -5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .nav-item {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .list-group-item {
+    transition: box-shadow 0.3s, transform 0.3s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+    /* Add margin between list items */
+  }
+  
+  .list-group-item:hover {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+  }
+  
+  .article-id:hover {
+    background-color: #f2f2f2;
+    border-radius: 5px;
+  }
+  
+  .nav-tabs .nav-item .nav-link {
+    font-weight: bold;
+  }
+  
+  /* New hover effect styles */
+  .list-group-item.zoom-in:hover {
+    /* background-color: rgb(255, 23, 23) !important; */
+    transform: scale(1.1);
+    color: white !important;
+  }
+  
+  .list-group-item.zoom-in .change-font-color:hover {
+    transition: all 1s;
+    color: rgb(255, 0, 0);
+    /* color: rgb(255, 255, 255); */
+  }
+  
+  /* .tab-content {
+    height: 100%; 
+    overflow-y: auto;  
+  }  */
+  
+  
+  .tab-pane {
+    box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+    /* Adjust the shadow as needed */
+    /* Add padding for better visibility of shadow */
+    /*background-color: #fff;*/
+    /* Set a background color if needed */
+    /* Adjust margin between tab contents */
+  }
+  
+  /* #sap {
+    height: 1000px; 
+    overflow-y: auto;
+  }  */
+  
+  /* Add a custom class for the card container */
+  .entity-form-card {
+    margin-top: 20px;
+  }
+  
+  .larger-swal {
+    width: 40%;
+    /* Adjust the width as needed */
+    font-size: 16px;
+    /* Adjust the font size as needed */
+  }
+  
+  
+  .navbar-inverse .navbar-nav > li > a:hover {
+        /* Add your CSS properties for hover state */
+        background-color: #FFFAF1;
+        color: #a11b1b;
+        border-bottom: 2.5px solid #a11b1b;
+  
+        /* Set the background to the gradient */
+        background: var(--black-red, linear-gradient(180deg, #2C2C2C 0%, #D4281C 100%));
+        /* Display as inline-block so it respects width and height */
+        display: inline-block;
+        /* Apply text color transparent to make the text invisible */
+        /* color: transparent; */
+        /* Apply the gradient as a mask to make the text visible with the gradient */
+        -webkit-background-clip: text;
+        background-clip: text;
+        /* Ensure compatibility with older browsers */
+        -webkit-text-fill-color: transparent;
+  
+        /* Add more CSS properties as needed */
+    }
+  
+  /* dropdown menu fixes */
+  .navbar-inverse .navbar-nav .open .dropdown-menu {
+      background-color: white;
+  }
+  
+  .navbar-inverse .navbar-nav .open .dropdown-menu > li > a {
+      color: black;
+      padding-right: 26px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+  }
+  
+  .navbar-inverse .navbar-nav .open .dropdown-menu > li > a:hover {
+      background-color: #BF2200;
+      color: white;
+      text-decoration: Plain text;
+  }
+  
+  .dropdown-menu img {
+      margin-right: 10px;
+  }
+  /* dropdown menu fixes */
+  </style>
+  
+  <div class="container">
+  <div class="row">
+    <div class="col-md-3">
+      <h1 style="font-weight: bold; text-align: center">Article List</h1>
+      <div class="card">
+        <div class="card-body">
+          <input type="text" id="searchInput" class="form-control mb-3" style="" placeholder="Search here...."
+            data-placement="top" title="Search Articles By" data-toggle="popover" data-html="true"
+            data-content="<p><strong>Article ID | Article Name | Vendor Article Number</strong></p>" />
+        </div>
+      </div>
+  
+      <div class="panel-body" id="articleListContainer" style="max-height: 1200px;">
+        <ul class="list-group" id="articleList">
+          {% if page.adx_entitylist %} {% entitylist id:page.adx_entitylist.id %} {% entityview pagesize:100 -%}
+          {% for item in entityview.records %}
+          <li class="list-group-item zoom-in text-center" style="cursor: pointer;"
+            data-article-id="{{ item.cr60a_articleid }}">
+            <h1 class="list-group-item-heading change-font-color" style="font-weight: bold">
+              {% if cr60a_articleid %}{{ item[cr60a_articleid] }}{% else %}{{ item.cr60a_articleid }} {%endif %}
+            </h1>
+            <p class="list-group-item-text change-font-color">
+              {{ item.cr60a_articlename }}<br />
+              {{ item.cr60a_vendorarticlenumber }}<br />
+              <span class="article-id" style="display: none">{{ item.cr60a_stg_article_masterid }}</span>
+            </p>
+          </li>
+          {% endfor %} {% endentityview %} {% endentitylist %} {% else %}
+          <li class="list-group-item">No articles found.</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <!-- <ul class="nav nav-tabs" id="myTabs">
+       <li class="nav-item">
+          <a class="nav-link active" data-toggle="tab" href="#basic"
+            >Basic Information</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#attributes"
+            >Article Attributes</a
+          >
+        </li>
+  
+        <li class="nav-item">
+         <a class="nav-link" data-toggle="tab" href="#sap">SAP Information</a>
+  
+            <h2>Article Information</h2>
+        </li>
+      </ul> -->
+  
+      <!-- <div id="waveSpinner" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div> -->
+  
+      <div>
+        <h1 style="text-align: center; font-weight: bold;">Article Information</h1>
+      </div>
+  
+      <!-- Bootstrap Card -->
+      <div class="card entity-form-card">
+        <div class="card-body">
+          <div id="entityFormContainer" class="">
+            <p>
+              {% if user %} {% if page.adx_entityform %}
+              {% entityform id:page.adx_entityform.id %} {% endif %} {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div id="tabContentContainer" class="tab-content" style="display:block">
+        <!--        <div id="basic" style="margin-top: 10px;" class="tab-pane fade show active" style="margin-top: 45px;">
+          <h4>Basic Information</h4>
+          <p>Your content for Basic Information...</p>
+        </div>
+        <div id="attributes" class="tab-pane fade" style="margin-top: -45px;">
+          <h4>Article Attributes</h4>
+          <p>Article 2 Attributes</p>
+        </div>
+        -->
+  
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.3/dist/sweetalert2.all.min.js"></script>
+  <script>
+  
+  $(document).ready(function () {
+    
+    //code added 0n 15th march,2024
+    //code for navigation
+  
+    // Replace the src attribute of the first image within ".xrm-attribute-value"
+    $(".xrm-attribute-value img:first").attr("src", "/bobs-nav-main-icon.svg");
+  
+    // Apply CSS properties to the first ".xrm-attribute-value" element
+    $(".xrm-attribute-value:first").css({
+        "display": "flex",
+        "flex-direction": "column"
+    });
+  
+    // Apply CSS properties to the image within the first ".xrm-attribute-value" element
+    $(".xrm-attribute-value:first img:first").css({
+        "width": "100%",
+        "height": "100%",
+        "margin": "0 10px"
+    });
+  
+    //targetting the first anchor tag that contains image (main image)
+    $(".xrm-attribute-value:first a:first-child").css({
+       "padding-top": "15px"
+    });
+  
+    // Apply CSS properties to the heading with class "siteTitle"
+    $(".siteTitle").css({"font-size": "11px",
+        "margin-top": "0",
+        "padding-top": "2px",
+        "color": "#2C2C2C",
+        "padding-left": "10px",
+    });
+  
+    // Define the paths to your icon images for the tabs with the class '.weblink'
+    var iconPathsWeblink = [
+        "/navigation-icon-1.svg"
+        // Add more paths for additional tabs as needed
+    ];
+  
+    // Define the paths to your icon images for the tabs with both '.weblink' and '.dropdown' classes
+    var iconPathsWeblinkDropdown = [
+        "/navigation-icon-2.svg",
+        "/navigation-icon-3.svg",
+        "/navigation-icon-4.svg",
+        "/navigation-icon-5.svg"
+        // Add more paths for additional tabs as needed
+    ];
+  
+    // Define the path to your icon image for the tab with only the '.dropdown' class
+    var iconPathDropdown = "/navigation-icon-6.svg"; // Adjust the path as needed
+  
+    // Add icons for tabs with only the '.weblink' class
+    $(".nav.navbar-nav.weblinks > li.weblink:not(.dropdown)").each(function(index) {
+        var iconPath = iconPathsWeblink[index];
+  
+        // Add the image before the first anchor tag within the tab
+        $(this).find("a").first().prepend('<img src="' + iconPath + '" alt="icon" class="nav-icon">&nbsp;');
+  
+        // Apply CSS to the anchor tag
+        $(this).find("a").first().css({
+            // Add your CSS properties here
+           "padding-bottom": "25px"
+            // Add more CSS properties as needed
+        });
+    });
+  
+    // Add icons for tabs with both '.weblink' and '.dropdown' classes
+    $(".nav.navbar-nav.weblinks > li.weblink.dropdown").each(function(index) {
+        var iconPath = iconPathsWeblinkDropdown[index];
+  
+        // Add the image before the first anchor tag within the tab
+        $(this).find("a").first().prepend('<img src="' + iconPath + '" alt="icon" class="nav-icon">&nbsp;');
+  
+        // Apply CSS to the anchor tag
+        $(this).find("a").first().css({
+            // Add your CSS properties here
+            "padding-bottom": "25px"
+            // Add more CSS properties as needed
+        });
+    });
+  
+    // Add icon for the tab with only the '.dropdown' class
+    $(".nav.navbar-nav.weblinks > li.dropdown:not(.weblink)").each(function() {
+        // Add the image before the first anchor tag within the tab
+        $(this).find("a").first().prepend('<img src="' + iconPathDropdown + '" alt="icon" class="nav-icon">&nbsp;');
+  
+        // Apply CSS to the anchor tag
+        $(this).find("a").first().css({
+            // Add your CSS properties here
+            "padding-bottom": "25px"
+            // Add more CSS properties as needed
+        });
+    });
+  
+    // Apply CSS to the dynamically added images
+    $(".nav-icon").css({
+       // Add your CSS properties here
+        "margin-top": "-4px",
+        "margin-right": "4px"
+    });
+  
+    // Remove the divider lines
+    $(".divider-vertical").remove();
+  
+    
+    //code end for navigation
+  
+    //apply css properties for dropdown menu
+    var iconPaths = [
+      "/navigation-icon-2.svg",
+      "/navigation-icon-3.svg",
+      "/navigation-icon-4.svg",
+      "/navigation-icon-5.svg",
+      "/navigation-icon-6.svg"
+      // Add more paths for additional tabs as needed
+    ];
+      
+    $("#navbar .dropdown-menu > li:first-child").each(function(index) {
+        var currentIconPath = iconPaths[index];
+        $(this).find("a:first").prepend("<img src='" + currentIconPath + "'>"); // Add your image source here
+    });
+  
+  
+    //breadcrumbs code
+    $('.breadcrumb li a').css({
+        'color': '#5D5D5D'
+        // Add more CSS styles as needed
+    });
+  
+  
+    // URL of the web files containing the icons
+    var iconUrl1 = "/dashboard-icon.svg";
+    var iconUrl2 = "/npd-breadcrumb-icon.svg";
+  
+    // Create the <img> tags for the icons
+    var iconImg1 = '<img src="' + iconUrl1 + '" alt="Icon 1" style="padding-right: 10px;">';
+    var iconImg2 = '<img src="' + iconUrl2 + '" alt="Icon 2" style="padding-right: 10px;">';
+  
+    // Prepend the icons to the "Home" and "New Project Development" links
+    $('.breadcrumb li:nth-child(1) a').prepend(iconImg1);
+    $('.breadcrumb li:nth-child(2) a').prepend(iconImg2);
+  
+    // Apply color to the 'a' element inside the li with class 'active'
+    $('.breadcrumb li.active').css('color', '#000000 !important');
+  
+    //breadcrumbs code end
+  
+  
+    $("#searchInput").on("keyup", function () {
+      var value = $(this).val().toLowerCase();
+      $("#articleList li").filter(function () {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+      });
+    });
+    //------------------------------------------------
+    document.querySelector('.tab-title').textContent = '';
+  
+    var element = document.querySelector('#cr60a_articleid');
+    element.style.color = '#ff1717';
+    element.style.fontWeight = 'bold';
+    element.style.fontSize = '19px';  // Adjust the font size as needed
+    //------------------------------------------------
+    // Get all h3 elements within the legend with class "section-title"
+    var h3Elements = document.querySelectorAll('.section-title h3');
+    // Loop through each h3 element and apply styles
+    h3Elements.forEach(function (h3Element) {
+      h3Element.style.cssText = 'font-weight: bold; font-size: 20px; padding-left: 26px;'; // Adjust padding-left value as needed
+    });
+    //---------------------------------------------------------
+    // Initialize popover for the search input
+    $('#searchInput').popover();
+  
+  });
+  
+  //--------sorting list items----------------------------------
+  // Get the list items and sort them based on data-article-id attribute
+  var list = $("#articleList");
+  var listItems = list.children('.list-group-item').get();
+  listItems.sort(function (a, b) {
+    var articleIdA = $(a).data('article-id');
+    var articleIdB = $(b).data('article-id');
+    return articleIdA - articleIdB;
+  });
+  $.each(listItems, function (idx, itm) { list.append(itm); });
+  
+  // Your provided JavaScript logic
+  var listItems = document.querySelectorAll("#articleList .list-group-item");
+  if (listItems.length > 0) {
+    var firstArticleId = listItems[0].getAttribute("data-article-id");
+    var firstStgArticleMasterId =
+      listItems[0].querySelector(".article-id").textContent;
+    updateUrlWithArticleId(firstStgArticleMasterId);
+  }
+  
+  listItems.forEach(function (item) {
+    item.addEventListener("click", async function () {
+      debugger;
+     // let ress = await showSweetAlertSpinner();
+     $('#loadingModal').modal('show');
+      var articleId = item.getAttribute("data-article-id");
+      var stgArticleMasterId = item.querySelector(".article-id").textContent;
+      var firstArticleId =
+        listItems.length > 0
+          ? listItems[0].querySelector(".article-id").textContent
+          : null;
+      if (stgArticleMasterId == firstArticleId) {
+        var currentUrl = window.location.href;
+        var updatedUrl;
+        var urlParams = new URLSearchParams(window.location.search);
+        urlParams.set("id", stgArticleMasterId);
+        updatedUrl = currentUrl.split("?")[0] + "?" + urlParams.toString();
+        window.location.replace(updatedUrl);
+      } else {
+        updateUrlWithArticleId(stgArticleMasterId);
+      }
+    });
+  });
+  
+  async function updateUrlWithArticleId(articleId) {
+    debugger;
+  
+    var currentUrl = window.location.href;
+    var updatedUrl;
+    var urlParams = new URLSearchParams(window.location.search);
+  
+    if (urlParams.has("id")) {
+      var currentIdValue = urlParams.get("id");
+      var firstArticleId =
+        listItems.length > 0
+          ? listItems[0].querySelector(".article-id").textContent
+          : null;
+  
+      if (currentIdValue !== articleId && articleId !== firstArticleId) {
+        urlParams.set("id", articleId);
+        updatedUrl = currentUrl.split("?")[0] + "?" + urlParams.toString();
+        window.location.replace(updatedUrl);
+      }
+    } else {
+      updatedUrl = currentUrl + "id=" + articleId;
+      var idMatches = updatedUrl.match(/[?&]id=([^&]+)/g);
+      var urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("id") !== articleId && idMatches.length == 1) {
+        window.location.replace(updatedUrl);
+      }
+    }
+  }
+  
+  
+  // Function to show the SweetAlert spinner
+  function showSweetAlertSpinner() {
+    debugger;
+    Swal.fire({
+      title: "Loading.....",
+      icon: "warning",
+      showConfirmButton: false, // Hide the OK button
+      customClass: {
+        popup: 'larger-swal' // Add a custom class to the modal
+      },
+      onOpen: function () {
+        Swal.showLoading();
+      }
+    }).then(function (result) {
+      if (result.dismiss === "timer") {
+        console.log("I was closed by the timer");
+      }
+    });
+  }
+  
+  //showSweetAlertSpinner();
+  
+  // Hide the SweetAlert spinner when the page has finished loading
+  window.addEventListener("load", async function () {
+    debugger;
+    // Get the value from the input field and make API call on page load
+    var articleIdOnLoad = $("#cr60a_articleid").val();
+    await makeAPICall(articleIdOnLoad);
+    $('#loadingModal').modal('hide');
+    //Swal.close();
+  });
+  
+  //-------------------------------product type rules----------------------------------------
+  
+  $(document).ready(function () {
+    function handleProductArray1() {
+      // Create an array to store the heights of rows to be hidden
+      var heights = [];
+  
+      for (var i = 0; i < ProductArray1.length; i++) {
+        var metadata = ProductArray1[i];
+  
+        for (const item in metadata) {
+          if (item.startsWith("cr60a_pt")) {
+            var fieldName = item.replace("cr60a_pt", "cr60a_");
+            var fieldValue = metadata[item];
+            var fieldElement = $(`#${fieldName}`).closest('tr');
+            var labelElement = $(`#${fieldName}_label`);
+  
+            if (fieldValue === "M" || fieldValue === "O") {
+              // Show the row and its label
+              fieldElement.show();
+              labelElement.show();
+            } else {
+              // Hide the row and its label
+              fieldElement.hide();
+              labelElement.hide();
+              // Store the height of the hidden row
+              heights.push(fieldElement.height());
+            }
+          }
+        }
+      }
+  
+      // Adjust the height of each hidden row to 0
+      heights.forEach(function (height) {
+        if (height > 0) {
+          $(this).css('height', '0');
+        }
+      });
+    }
+  
+  
+    function productTypeRules() {
+      var selectedValue = $("#cr60a_producttype_name").val();
+  
+      ProductArray1 = [];
+  
+      function getproduct(webapiURL4) {
+        webapi.safeAjax({
+          type: "GET",
+          url: webapiURL4,
+          contentType: "application/json",
+          success: function (res) {
+            ProductArray1.push.apply(ProductArray1, res.value);
+            handleProductArray1();
+          },
+          error: function (e) {
+            console.log(e.responseText + ' Will retry pulling data...');
+          }
+        });
+      }
+  
+      function generateWebApiURL4() {
+        let baseURL4 = "/_api/cr60a_producttypes?$filter=cr60a_code eq '" + selectedValue + "'";
+        console.log(baseURL4);
+        return baseURL4;
+      }
+  
+      getproduct(generateWebApiURL4());
+    }
+  
+    $("button[aria-label='Select'].btn.btn-primary").click(function () {
+      setTimeout(() => {
+        productTypeRules();
+      }, 1000);
+    });
+  
+    productTypeRules();
+  });
+  
+  //------------lock edit screen based on bobnet Submission
+  // Function to make API call and handle save option
+  async function makeAPICall(articleId) {
+    debugger;
+    await $.ajax({
+      type: "GET",
+      url: "/_api/cr60a_stg_article_masters",
+      data: {
+        "$select": "cr60a_articleid",
+        "$expand": "bdf_Generic($select=bdf_bobnetsubmission)",
+        "$filter": "cr60a_articleid eq '" + articleId + "'"
+      },
+      contentType: "application/json",
+      headers: {
+        "Prefer": "odata.include-annotations=*"
+      },
+      success: function (data, textStatus, xhr) {
+        var results = data.value;
+        if (results.length > 0) {
+          var bobnetsubmission = results[0].bdf_Generic.bdf_bobnetsubmission;
+          if (bobnetsubmission) {
+            disableSaveOption();
+          } else {
+            enableSaveOption();
+          }
+        }
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log(xhr);
+      }
+    });
+  }
+  
+  // Function to disable save option
+  function disableSaveOption() {
+    $("#UpdateButton").prop("disabled", true).val("Saving Disabled");
+    $("[data-name='tab_3']").find(":input").prop("disabled", true);
+  }
+  
+  // Function to enable save option
+  function enableSaveOption() {
+    $("#UpdateButton").prop("disabled", false).val("Submit");
+  }
+  
+  // // Call makeAPICall for the first list item when the page loads
+  // var firstArticleId = $("#articleList .list-group-item:first").data("article-id");
+  // makeAPICall(firstArticleId);
+  
+  // listItems.forEach(async function (item) {
+  
+  //   // Handle click event on list items
+  //   $("#articleList .list-group-item").on("click", function () {
+  //     debugger;
+  //     var articleId = $(this).data("article-id");
+  //     makeAPICall(articleId);
+  //   });
+  
+  
+  // });
+  
+  
+  </script>
