@@ -8,9 +8,11 @@
     let filterButton = false;
     let dropdownValue;
     let dropdownText;
-    let ProductType;
-    let vendorArticalNumber;
     let onloadDropDownValue;
+    let ProductTypeText;
+    let vendorArticalNumber;
+    let ProductType;
+    let vendorArticalNumberText;
     let searchKey = '';
     let minorCodeArray = [];
     let finishGroupArray = [];
@@ -131,13 +133,12 @@
                 filterButton = false;
             });
 
-            // On Change of Product Type filterButton false
-            $('ul#entitylist-filters li li #dropdown_1').change(function () {
+             // On Change of Product Type filterButton false
+             $('ul#entitylist-filters li li #dropdown_1').change(function () {
                 filterButton = false;
             });
-
+ 
             // On Change of Artical Number We are making filter button to false
-
             $('ul#entitylist-filters li li #2').change(function () {
                 filterButton = false;
             });
@@ -160,22 +161,23 @@
 
 
             // Add family name condition if dropdownText is defined
-            if (dropdownText !== undefined && dropdownText !== null && dropdownText!=='') {
-                searchQueryString += " and bdf_Generic/bdf_familyname eq '" + dropdownText + "'";
+            if (dropdownText !== undefined && dropdownText !== null) {
+                //searchQueryString += " and bdf_Generic/bdf_familyname eq '" + dropdownText + "'";
+                searchQueryString += " and cr60a_familycodedescription eq '" + dropdownText + "'";
             }
 
             // Adding ProductType Value to Qurey if Dropdown Value is Defined
-
-            if (ProductTypeText !== undefined && ProductTypeText !== null && ProductTypeText!=='') {
+ 
+            if (ProductType !== undefined && ProductType !== null && ProductType!=='') {
                 searchQueryString += "and _cr60a_producttype_value eq "+ProductType+"";
             }
-
+ 
             // Adding Artical Number to searchqQurey
              
-            if (vendorArticalNumber !== undefined && vendorArticalNumber !== null && vendorArticalNumber!=='') {
-                searchQueryString += "and cr60a_vendorarticlenumber eq '"+vendorArticalNumber+"'";
-            }
+            if (vendorArticalNumberText !== undefined && vendorArticalNumberText !== null && vendorArticalNumberText!=='') {
+                searchQueryString += "and cr60a_vendorarticlenumber eq "+vendorArticalNumberText+"";
 
+            }
 
             return searchQueryString;
         }
@@ -360,11 +362,11 @@
                         key: "bdf_inpackagingheight",
                         width: 15
                     },
-                    {
-                        header: "Volume (Auto Calculated) ",
-                        key: "bdf_inpackagingvolume",
-                        width: 15
-                    },
+                    // {
+                    //     header: "Volume (Auto Calculated) ",
+                    //     key: "bdf_inpackagingvolume",
+                    //     width: 15
+                    // },
                     {
                         header: "In Packaging Weight",
                         key: "bdf_inpackagingweight",
@@ -1111,7 +1113,7 @@
 
             //Product Sub Type
                 function addProductsubtypeDataValidation(ws) {
-                    const productsubtypeColumn = ws.getColumn('P'); 
+                    const productsubtypeColumn = ws.getColumn('O'); 
 
                     productsubtypeColumn.eachCell({
                         includeEmpty: true
@@ -1119,7 +1121,7 @@
                         if (rowNumber > 1) {
                             cell.dataValidation = {
                                 type: 'list',
-                                formulae: [`=OFFSET(Productsubtype!$A$1, MATCH(O${rowNumber},Productsubtype!B:B,0)-1, 0,COUNTIF(Productsubtype!B:B,O${rowNumber}),1)`],
+                                formulae: [`=OFFSET(Productsubtype!$A$1, MATCH(N${rowNumber},Productsubtype!B:B,0)-1, 0,COUNTIF(Productsubtype!B:B,N${rowNumber}),1)`],
                                 showErrorMessage: true,
                                 errorTitle: 'Invalid Entry',
                                 error: 'Please select a value from the dropdown list.',
@@ -1133,7 +1135,7 @@
 
             //Size
                 function addSizeDataValidation(ws) {
-                    const sizeColumn = ws.getColumn('Q'); 
+                    const sizeColumn = ws.getColumn('P'); 
 
                     sizeColumn.eachCell({
                         includeEmpty: true
@@ -1141,7 +1143,7 @@
                         if (rowNumber > 1) {
                             cell.dataValidation = {
                                 type: 'list',
-                                formulae: [`=OFFSET(Size!$A$1, MATCH(O${rowNumber},Size!B:B,0)-1, 0,COUNTIF(Size!B:B,O${rowNumber}),1)`],
+                                formulae: [`=OFFSET(Size!$A$1, MATCH(N${rowNumber},Size!B:B,0)-1, 0,COUNTIF(Size!B:B,N${rowNumber}),1)`],
                                 showErrorMessage: true,
                                 errorTitle: 'Invalid Entry',
                                 error: 'Please select a value from the dropdown list.',
@@ -1156,7 +1158,7 @@
 
                 //Height
                 function addHeightDataValidation(ws) {
-                    const heightColumn = ws.getColumn('R'); 
+                    const heightColumn = ws.getColumn('Q'); 
 
                     heightColumn.eachCell({
                         includeEmpty: true
@@ -1164,7 +1166,7 @@
                         if (rowNumber > 1) {
                             cell.dataValidation = {
                                 type: 'list',
-                                formulae: [`=OFFSET(Height!$A$1, MATCH(O${rowNumber},Height!B:B,0)-1, 0,COUNTIF(Height!B:B,O${rowNumber}),1)`],
+                                formulae: [`=OFFSET(Height!$A$1, MATCH(N${rowNumber},Height!B:B,0)-1, 0,COUNTIF(Height!B:B,N${rowNumber}),1)`],
                                 showErrorMessage: true,
                                 errorTitle: 'Invalid Entry',
                                 error: 'Please select a value from the dropdown list.',
@@ -1241,7 +1243,7 @@
             });
 
             //locking the columns and giving them color
-            var lockedColumns = ["cr60a_articleid","cr60a_articlename","cr60a_vendorarticlenumber","bdf_inpackagingvolume"];
+            var lockedColumns = ["cr60a_articleid","cr60a_articlename","cr60a_vendorarticlenumber"];
             for (var i = 0; i < lockedColumns.length; i++) {
             var lockColumn = ws.getColumn(lockedColumns[i]);
             lockColumn.eachCell({ includeEmpty: true }, function (
@@ -1296,7 +1298,8 @@
                 $('a#tempDownloadButt').click(function(){
                     debugger;
                     $('#processingMsg').css("width","200px !important");
-                    notificationMsg.show("Generating Templates...")
+                    $('#loaderModal').modal('show');
+                   // notificationMsg.show("Generating Templates...")
                     getVariant(generateWebApiURL(filterApplied,filterArray)+searchQuery());
                     // getMinorCode(generateWebApiURL4());
                     fetchData(generateWebApiURL5('cr60a_finishgroups', 'cr60a_code, cr60a_finishgroupid', 'cr60a_code'), finishGroupArray);
@@ -1337,7 +1340,8 @@
                     $(document).ajaxStop(async function () {
                         $(document).off("ajaxStop"); 
 
-                        notificationMsg.hide();
+                        //notificationMsg.hide();
+                        $('#loaderModal').modal('hide');
                         createExcelSheet();
 
 
@@ -1410,3 +1414,75 @@
         padding-left: 10px;
     }
 </style>
+
+<!-- modal HTML for generate template -->
+<div class="modal4 fade4" id="loaderModal" tabindex="-1" role="dialog" aria-labelledby="loaderModalLabel" aria-hidden="true">
+    <div class="modal-dialog4 modal-dialog-centered4" role="document">
+        <div class="modal-content4">
+            <div class="modal-body4">
+               <p style="font-size:25px"> <img src="/generate-loader.gif" alt="Loading" style="width:80px"/> Generating Template ... </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+        .modal4 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1050;
+            display: none;
+            overflow: hidden;
+            outline: 0;
+        }
+
+        .modal4.fade4.show {
+            display: block;
+        }
+
+        .modal-dialog4 {
+            position: relative;
+            width: 80%; 
+            max-width: 800px; 
+            margin: 20% auto;
+            margin-left:35%;
+        }
+
+        .modal-content4 {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: #FEF3DF;
+            background-clip: padding-box;
+            border-radius: 30px;
+            outline: 0;
+            width:70%
+        }
+
+      .modal4-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1040;
+        width: 100vw;
+        height: 100vh;
+        background-color: black; /* Opaque grey background */
+        backdrop-filter: blur(10px); /* Apply blur effect */
+    }
+
+
+        .modal-body4 {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+      
+    </style>

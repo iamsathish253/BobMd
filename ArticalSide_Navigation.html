@@ -129,14 +129,34 @@
   
   .list-group-item {
     transition: box-shadow 0.3s, transform 0.3s;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
     margin-bottom: 10px;
     /* Add margin between list items */
+
+    /* Adding border-radius to list Items */
+    border-radius: var(--radius-l, 16px) !important;
+    border: 1px solid var(--grey-grey-300, #DBDBDB);
+    background: var(--Base-background-white, #FFF);
+    box-shadow: 0px 4px 20px 4px rgba(62, 8, 8, 0.05);
+
   }
   
   .list-group-item:hover {
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    /* box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); */
     transform: scale(1.05);
+
+    /* Changed hover bg Color  and adding border */
+
+    background: var(--yellow-yellow-200, #FEF3DF);
+    border: 0.5px solid var(--black-red, #2C2C2C);
+    border-radius: var(--radius-l, 16px);
+    box-shadow: 2px 4px 10.9px 4px rgba(0, 0, 0, 0.12), 0px 16px 46px 0px rgba(62, 8, 8, 0.05);
+  }
+
+  /* Text alignment to left */
+
+  .text-center{
+    text-align: left;
   }
   
   .article-id:hover {
@@ -156,8 +176,12 @@
   }
   
   .list-group-item.zoom-in .change-font-color:hover {
-    transition: all 1s;
-    color: rgb(255, 0, 0);
+    transition: all 0.5s;
+    /* color: rgb(255, 0, 0); */
+
+    /* Changing text color when hover the li -- Sathish */ 
+    color: var(--yellow-yellow-800, #935E04);
+
     /* color: rgb(255, 255, 255); */
   }
   
