@@ -1,0 +1,370 @@
+.container {
+    width: 90%;
+}
+
+textarea.form-control {
+    height: auto;
+    /* border-color: #C61B1A; */
+}
+
+.input-group .form-control {
+    font-size: 14px;
+    border: 1px solid #C61B1A;
+}
+
+input.form-control {
+    /* border: 1px solid #C61B1A; */
+    border: 1.50px #DBDBDB solid !important;
+}
+
+.crmEntityFormView .form-control.readonly, .form-readonly .form-control, .form-control {
+    font-size: 14px;
+    border-color: lightgrey;
+}
+
+.entitylist {
+    font-size: 14px;
+}
+
+/*************************************
+******** Bootstrap overrides ********
+*************************************/
+
+.breadcrumb {
+    margin-bottom: 0px;
+}
+
+.btn.disabled, .btn[disabled], fieldset[disabled] .btn {
+    opacity: 1;
+}
+
+/****** end Bootstrap overrides ******/
+
+
+/***************************************
+******** PO List styles ***************
+***************************************/
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #ECECEC;
+}
+
+.pagination > .active > a,
+.pagination > .active > a:hover, 
+.pagination > .active > a:focus {
+    /* background-color: #C61B1A !important; */
+    background-color: #2C2C2C !important;
+    border-radius: 4px;
+}
+
+.pagination > li > a, 
+.pagination > li > span {
+    padding: 3px 6px;
+    line-height: 2.2;
+}
+
+/***** end PO List styles *******/
+
+
+/*********************************
+********** Form styles **********
+*********************************/
+
+#EntityFormControl .section-title {
+    /* background-color: aqua; */
+    background-color: #EBEBEB;;
+    color: #C61B1A;
+    margin-bottom: 10px;
+}
+
+/* #EntityFormControl fieldset {
+    /*background-color: aqua;*/
+    /* border-bottom: 2px solid #C61B1A; 
+} */
+
+#EntityFormControl .crmEntityFormView {
+    border: none;
+}
+
+@media (min-width: 1366px) {
+    .modal-lg {
+        width: 1200px;
+    }
+}
+
+/******** end Form styles ********/
+
+/******** table and filter styles - Done by Sehrish********/
+
+.entitylist .content-panel{
+    margin-bottom: 20px;
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+        box-shadow: 0px 0px 6px #00000029;
+        opacity: 1;
+}
+
+.entity-grid .view-toolbar{
+    /*border-top: 2.5px solid #C61B1A; */
+      border-bottom: none;
+      padding-top: 20px;
+}
+
+.entitylist .content-panel .list-inline .entitylist-filter-option-group {
+   margin-left: 20px;
+   margin-bottom: 20px;
+}
+
+.entitylist .content-panel .list-inline .entitylist-filter-option-group .input-group-addon {
+   color: #31708f;
+}
+
+.entity-grid .view-toolbar .pull-right {
+     margin-right: 5px;
+     
+}
+
+.entity-grid .view-toolbar .pull-right .input-group .query{
+
+    height: 35px;
+     
+     
+}
+
+.entity-grid .view-toolbar .pull-right .input-group .input-group-btn{
+
+    height: 35px;
+     
+     
+}
+
+.entity-grid{
+    border-top: none;
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+        box-shadow: 0px 0px 6px #00000029;
+        opacity: 1;
+}
+
+
+.entity-grid .view-pagination{
+    border-top: none;
+    
+}
+
+.entity-grid .view-pagination .pagination{
+    margin-bottom: 20px;
+}
+
+.entity-grid .view-grid .table tr:nth-child(even){
+    background-color: #F3F3F3;
+
+}
+
+
+.entity-grid .view-grid .table tr:hover{
+    background-color: #ddd;
+
+}
+
+.entity-grid .view-grid .table th {
+  background-color: #C61B1A;
+}
+
+.entity-grid .view-grid .table th a{
+  color: #FFFFFF;
+}
+
+.entity-grid .view-grid .table .dropdown {
+    margin-left: 10px;
+}
+
+/* changes made for styling from 28th Feb,2024 */
+.input-group .form-control {
+    border: 1.50px #DBDBDB solid !important;
+}
+
+/* form heading */
+.section-title h3 {
+    color: #6E6E6E;
+    font-weight: 700;
+    padding: 8px 0 8px 36px;
+    margin-top: 12px;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+/* border color for form sections */
+.section {
+    border: 1px solid #EBEBEB;
+}
+
+/* overriding legend class from bootstrap */
+.legend {
+    margin-bottom: 0;
+}
+
+.tab-title {
+    /* color: #6E6E6E;
+    font-weight: 700;
+    padding: 18px 0 18px 36px;
+    margin-top: 12px;
+    font-size: 20px;
+    background-color: #EBEBEB;
+    margin-bottom: 10px; */
+    display: none;
+}
+
+/* global search button */
+.search-button, .clearlookupfield, .launchentitylookup, .btn-hg  {
+    border-color:lightgrey !important;
+    height:35px !important;
+}
+
+/* .launchentitylookup {
+    border-color:lightgrey !important;
+    height:35px !important;
+} */
+
+/* save button */
+.btn-success {
+    color: #2C2C2C;
+    font-size: 14px;
+    font-weight: 600;
+    background-color: white;
+    width: 80px;
+}
+
+/* save button icon */
+.glyphicon-save {
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+
+
+/* css added on 25th March,2024 */
+
+/* hiding the filter left side image */
+.input-group-addon {
+    display: none;
+}
+
+/* pagination view centered */
+.view-pagination {
+    text-align: center;
+}
+
+/* fixin grid color */
+table thead tr th {
+    background: linear-gradient(rgb(237, 113, 113) 0%, rgb(198, 27, 26) 17%, rgb(198, 27, 26) 86%, rgb(237, 113, 113) 100%);
+    padding-bottom: 15px;
+    padding-top: 15px;
+}
+
+/* search button */
+.toolbar-actions button .fa-search {
+    color: #6E6E6E;
+}
+
+/* css by sathish */
+/* Apply global css for download button inside grid */
+
+/* Apply global css for download button inside grid */
+
+/* Apply global css for download button inside grid */
+
+.entitylist-download{
+    background: #2C2C2C;
+    border-radius: 4px;
+    box-shadow: 0px -3px 8px black inset;
+}
+
+.btn-info:hover {
+    color: #fff;
+    background-color: #000000;
+    border-color: #000000;
+}
+ .entitylist-upload{
+    background-color:#2C2C2C;
+    border-color:#2C2C2C
+}
+
+ /* ................................CSS .btn filter ...................................... */
+
+/* Apply global css for filter button */
+
+.btn-entitylist-filter-submit{
+    background: #2C2C2C !important;
+    border-radius: 4px !important;
+    box-shadow: 0px -3px 8px black inset !important;
+    color: white !important;
+    border: none !important;
+}
+
+
+.btn-entitylist-filter-submit:hover{
+
+    border: none;
+
+}
+
+
+/* .................... CSS .btn-success.............................................. */
+
+/* Apply Css to gride SaveChanges button */
+
+.btn-success{
+    width: 85px;
+    box-shadow: rgba(0, 0, 0, 0.5) 0px -3px 8px inset;
+    border-radius: 4px;
+    border: 1px solid rgb(44, 44, 44);
+    background-color: white;
+    color: #2C2C2C;
+
+}
+
+.btn-success:hover{
+    border: 1px solid rgb(255, 255, 255);
+}
+
+
+/* 
+....................................................................................... */
+
+
+/* Apply Css to form Primary Button */
+
+.btn-primary{
+    background: #2C2C2C;
+    border-radius: 4px;
+    box-shadow: 0px -3px 8px black inset;
+    /* border: 1px solid white; */
+    color:white
+
+}
+
+/* ........................................................................ */
+
+/* Apply Css to grid level button */
+
+
+.btn-xs{
+    
+    color: rgb(0, 0, 0) !important;
+    border-radius: 5px !important;
+    border-color: black !important;
+}
+
+
+.btn-xs:hover{
+
+    border-radius: var(--radius-xs, 4px) !important;
+    border: 1px solid var(--primary-DEFAULT-primary-700, #2C2C2C) !important;
+    background: var(--primary-DEFAULT-primary-700, #2C2C2C) !important;
+    color: #FFFFFF !important;
+
+}
+
+/* .................................. */
+
+
+
