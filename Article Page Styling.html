@@ -1,0 +1,735 @@
+<!-- Add this modal HTML at the end of your document -->
+<div class="modal1 fade" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="loadingModalLabel" aria-hidden="true">
+    <div class="modal-dialog1 modal-dialog-centered" role="document">
+        <div class="modal-content1">
+            <div class="modal-body1">
+                <img src="/loading.gif" alt="Loading" style="width:200px"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+        .modal1 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1050;
+            display: none;
+            overflow: hidden;
+            outline: 0;
+        }
+
+        .modal1.fade.show {
+            display: block;
+        }
+
+        .modal-dialog1 {
+            position: relative;
+            width: 80%; 
+            max-width: 800px; 
+            margin: 10% auto; 
+        }
+
+        .modal-content1 {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 0.3rem;
+            outline: 0;
+            height: 400px;
+            box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+        }
+
+      .modal1-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1040;
+        width: 100vw;
+        height: 100vh;
+        background-color: black; /* Opaque grey background */
+        backdrop-filter: blur(10px); /* Apply blur effect */
+    }
+
+
+        .modal-body1 {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wrapper-body {
+            background: #FCFCFC;
+        }
+
+        .navbar-inverse .navbar-nav > li > a:hover {
+            /* Add your CSS properties for hover state */
+            background-color: #FFFAF1;
+            color: #a11b1b;
+            border-bottom: 2.5px solid #a11b1b;
+
+            /* Set the background to the gradient */
+            background: var(--black-red, linear-gradient(180deg, #2C2C2C 0%, #D4281C 100%));
+            /* Display as inline-block so it respects width and height */
+            display: inline-block;
+            /* Apply text color transparent to make the text invisible */
+            /* color: transparent; */
+            /* Apply the gradient as a mask to make the text visible with the gradient */
+            -webkit-background-clip: text;
+            background-clip: text;
+            /* Ensure compatibility with older browsers */
+            -webkit-text-fill-color: transparent;
+
+            /* Add more CSS properties as needed */
+        }
+
+        /* dropdown menu fixes */
+        .navbar-inverse .navbar-nav .open .dropdown-menu {
+            background-color: white;
+        }
+
+        .navbar-inverse .navbar-nav .open .dropdown-menu > li > a {
+            color: black;
+            padding-right: 26px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .navbar-inverse .navbar-nav .open .dropdown-menu > li > a:hover {
+            background-color: #BF2200;
+            color: white;
+            text-decoration: Plain text;
+        }
+
+        .dropdown-menu img {
+            margin-right: 10px;
+        }
+
+      
+    </style>
+<script>
+    $(document).ready(function() {
+
+     // Function to apply modal width and additional CSS properties based on media queries
+    function applyModalStylesForMediaQuery(query, styles) {
+        if (window.matchMedia(query).matches) {
+            // Apply modal styles if the media query matches
+            $(".modal-form-edit .modal-lg").css(styles);
+        }
+    }
+
+    // Define the modal width and additional CSS properties for all media queries
+    var modalStyles = {
+        "width": "80%",
+        "max-height": "calc(100vh - 100px)",
+        "overflow-y": "auto"
+    };
+
+    // Apply modal styles for each media query
+    applyModalStylesForMediaQuery("(min-width: 1366px)", modalStyles);
+    applyModalStylesForMediaQuery("(min-width: 992px)", modalStyles);
+    applyModalStylesForMediaQuery("(min-width: 768px)", modalStyles);
+    
+//$('#loadingModal').modal('show');
+
+
+    //code for navigation
+
+    // // Replace the src attribute of the first image within ".xrm-attribute-value"
+    // $(".xrm-attribute-value img:first").attr("src", "/bobs-nav-main-icon.svg");
+
+    // // Apply CSS properties to the first ".xrm-attribute-value" element
+    // $(".xrm-attribute-value:first").css({
+    //     "display": "flex",
+    //     "flex-direction": "column"
+    // });
+
+    // // Apply CSS properties to the image within the first ".xrm-attribute-value" element
+    // $(".xrm-attribute-value:first img:first").css({
+    //     "width": "100%",
+    //     "height": "100%",
+    //     "margin": "0 10px"
+    // });
+
+    // //targetting the first anchor tag that contains image (main image)
+    // $(".xrm-attribute-value:first a:first-child").css({
+    //    "padding-top": "15px"
+    // });
+
+    // // Apply CSS properties to the heading with class "siteTitle"
+    // $(".siteTitle").css({"font-size": "11px",
+    //     "margin-top": "0",
+    //     "padding-top": "2px",
+    //     "color": "#2C2C2C",
+    //     "padding-left": "10px",
+    // });
+
+    // // Define the paths to your icon images for the tabs with the class '.weblink'
+    // var iconPathsWeblink = [
+    //     "/navigation-icon-1.svg"
+    //     // Add more paths for additional tabs as needed
+    // ];
+
+    // // Define the paths to your icon images for the tabs with both '.weblink' and '.dropdown' classes
+    // var iconPathsWeblinkDropdown = [
+    //     "/navigation-icon-2.svg",
+    //     "/navigation-icon-3.svg",
+    //     "/navigation-icon-4.svg",
+    //     "/navigation-icon-5.svg"
+    //     // Add more paths for additional tabs as needed
+    // ];
+
+    // // Define the path to your icon image for the tab with only the '.dropdown' class
+    // var iconPathDropdown = "/navigation-icon-6.svg"; // Adjust the path as needed
+
+    // // Add icons for tabs with only the '.weblink' class
+    // $(".nav.navbar-nav.weblinks > li.weblink:not(.dropdown)").each(function(index) {
+    //     var iconPath = iconPathsWeblink[index];
+
+    //     // Add the image before the first anchor tag within the tab
+    //     $(this).find("a").first().prepend('<img src="' + iconPath + '" alt="icon" class="nav-icon">&nbsp;');
+
+    //     // Apply CSS to the anchor tag
+    //     $(this).find("a").first().css({
+    //         // Add your CSS properties here
+    //        "padding-bottom": "25px"
+    //         // Add more CSS properties as needed
+    //     });
+    // });
+
+    // // Add icons for tabs with both '.weblink' and '.dropdown' classes
+    // $(".nav.navbar-nav.weblinks > li.weblink.dropdown").each(function(index) {
+    //     var iconPath = iconPathsWeblinkDropdown[index];
+
+    //     // Add the image before the first anchor tag within the tab
+    //     $(this).find("a").first().prepend('<img src="' + iconPath + '" alt="icon" class="nav-icon">&nbsp;');
+
+    //     // Apply CSS to the anchor tag
+    //     $(this).find("a").first().css({
+    //         // Add your CSS properties here
+    //         "padding-bottom": "25px"
+    //         // Add more CSS properties as needed
+    //     });
+    // });
+
+    // // Add icon for the tab with only the '.dropdown' class
+    // $(".nav.navbar-nav.weblinks > li.dropdown:not(.weblink)").each(function() {
+    //     // Add the image before the first anchor tag within the tab
+    //     $(this).find("a").first().prepend('<img src="' + iconPathDropdown + '" alt="icon" class="nav-icon">&nbsp;');
+
+    //     // Apply CSS to the anchor tag
+    //     $(this).find("a").first().css({
+    //         // Add your CSS properties here
+    //         "padding-bottom": "25px"
+    //         // Add more CSS properties as needed
+    //     });
+    // });
+
+    // // Apply CSS to the dynamically added images
+    // $(".nav-icon").css({
+    //    // Add your CSS properties here
+    //     "margin-top": "-4px",
+    //     "margin-right": "4px"
+    // });
+
+    // // Remove the divider lines
+    // $(".divider-vertical").remove();
+
+    
+    //code end for navigation
+
+    $('.container .columnBlockLayout').css({
+        'background-color': 'rgba(255, 255, 255, 0)'
+        // Add more CSS styles as needed
+    });
+
+     $('.entitylist:not(.entity-grid.entitylist)').css({
+    'background-color': 'rgba(255, 255, 255, 0)'
+    // Add more CSS styles as needed
+    });
+
+
+    $('.entitylist .entitylist-filter').css({
+        'background-color': 'rgba(255, 255, 255, 0)',
+        'box-shadow': 'none',
+        'border': 'none'
+        // Add more CSS styles as needed
+    });
+
+     $('.entitylist .entitylist-filter .panel-body').css({
+        'background-color': 'rgba(255, 255, 255, 0)',
+        'box-shadow': 'none',
+        'border': 'none',
+        'padding-left': '10px'
+        // Add more CSS styles as needed
+    });
+
+    // $('#mainContent').css({
+    //     'background': 'url(bg-image.svg)',
+    //     'background-size': 'cover',
+    //     // 'background-attachment': 'fixed'
+    //     'background-position-x': '100%',
+    //     'background-position-y': '18%',
+    // });
+    
+    // $('.breadcrumb').css({
+    //     //'margin-left': '100px',
+    //     //'margin-bottom': '32px'
+    //     'margin-left': '18px',
+    //     'margin-bottom': '25px',
+    //     'margin-top': '25px'
+    //     // Add more CSS styles as needed
+    // });
+
+   
+    
+    // $('.breadcrumb li a').css({
+    //     'color': '#5D5D5D'
+    //     // Add more CSS styles as needed
+    // });
+
+
+    // // URL of the web files containing the icons
+    // var iconUrl1 = "/dashboard-icon.svg";
+    // var iconUrl2 = "/npd-breadcrumb-icon.svg";
+
+    // // Create the <img> tags for the icons
+    // var iconImg1 = '<img src="' + iconUrl1 + '" alt="Icon 1" style="padding-right: 10px;">';
+    // var iconImg2 = '<img src="' + iconUrl2 + '" alt="Icon 2" style="padding-right: 10px;">';
+
+    // // Prepend the icons to the "Home" and "New Project Development" links
+    // $('.breadcrumb li:nth-child(1) a').prepend(iconImg1);
+    // $('.breadcrumb li:nth-child(2) a').prepend(iconImg2);
+
+    // // Apply color to the 'a' element inside the li with class 'active'
+    // $('.breadcrumb li.active').css('color', '#000000 !important');
+
+
+    $('h2').css({
+        'color': '#2C2C2C !important',
+        'font-size': '24px !important'  // Example font size
+    });
+
+    // Apply CSS properties to the <p> element with class 'addminor' inside .entitylist
+    $('.entitylist p.addminor').css({
+        'color': '#3F3F3F !important',
+        'font-size': '16px !important' // Example font size
+    });
+
+    // //apply css properties for dropdown menu
+    // var iconPaths = [
+    // "/navigation-icon-2.svg",
+    // "/navigation-icon-3.svg",
+    // "/navigation-icon-4.svg",
+    // "/navigation-icon-5.svg",
+    // "/navigation-icon-6.svg"
+    // // Add more paths for additional tabs as needed
+    // ];
+    
+    // $("#navbar .dropdown-menu > li:first-child").each(function(index) {
+    //     var currentIconPath = iconPaths[index];
+    //     $(this).find("a:first").prepend("<img src='" + currentIconPath + "'>"); // Add your image source here
+    // });
+
+    
+
+    $(".entitylist.entity-grid").on("loaded", function () {
+                $('.sectionBlockLayout').show();
+
+
+       
+    // Check for .view-empty.message elements without display: none // No records
+        $('.view-empty.message').each(function() {
+        if ($(this).css('display') !== 'none') {
+            // Apply the image and styling
+            $(this).html('<img src="/no-records.png" alt="No records image" class="no-record">');
+            $(this).css({
+            'display': 'flex',
+            'justify-content': 'center'
+            });
+            $(this).find('.no-record').css({
+            'width': '35%',
+            'padding': '30px'
+            });
+        }
+        });
+
+
+
+       // setTimeout(function() {
+       // $('#loadingModal').modal('hide');
+       // }, 3000); 
+
+        $('.toolbar-actions').css({'margin-top': '25px'});
+
+        $('table thead tr th').css({'background': 'linear-gradient(180deg, #ED7171 0%, #C61B1A 17%, #C61B1A 86%, #ED7171 100%)'});
+
+        $('table thead tr th:not(:last-child)').css({'padding-bottom': '24px'});
+
+      //  $('.toolbar-actions .form-control').css('border-right', 'none !important');
+
+      //  $('.toolbar-actions button').css('border-left', 'none');
+
+        $('.toolbar-actions button .fa-search').css('color', '#6E6E6E');
+
+
+
+        $('table tbody tr td .dropdown .btn').css({
+            'color': 'black',
+            'border-radius': '5px',
+            'border-color': 'black' 
+        });
+
+        // On hover, add the hover effect class
+        $('table tbody tr td .dropdown .btn').hover(function() {
+        $(this).addClass('hover-effect');
+        }, function() {
+        $(this).removeClass('hover-effect');
+        });
+
+        var imgElement = $('<img>').attr('src', '/save-icon.svg');
+
+        // Replace glyphicon with the img element
+        $('table thead tr th .btn-success i.glyphicon-save').replaceWith(imgElement);
+
+        $('table thead tr th .btn-success img').css({
+
+        'margin-left':'18px',
+        'margin-right':'20px',
+        'margin-bottom':'2px'
+        });
+
+        $('table thead tr th .btn-success').css({
+
+        'box-shadow': '0px -3px 8px rgba(0, 0, 0, 0.50) inset',
+        'border-radius': '4px',
+        'border': '1px #2C2C2C solid'          
+        });
+
+        // On hover, add the hover effect class
+        $('table thead tr th .btn-success').hover(function() {
+        $(this).addClass('hover-save-effect');
+        }, function() {
+        $(this).removeClass('hover-save-effect');
+        });
+
+
+
+
+
+      
+
+
+        $('h2, .h2, .section-landing .row > div .section-landing-sub-heading, .page_section h2, .color-inverse h2, h2 p').css({
+         'font-size': '18px',
+        //  'margin-left': '30px'
+         'margin-top': '0'
+        });
+
+        $('.view-pagination').css({
+            'text-align': 'center',
+        });
+
+        $('.addminor').css({
+            // 'margin-left': '30px',
+        });
+
+        $('.container').css({
+           // 'background-color': 'white',
+            'background-color': 'rgba(255, 255, 255, 0.8)',
+            'border-top-left-radius': '20px',
+            'border-top-right-radius': '20px',
+        });
+
+         // Select the container within .footer-bottom and apply CSS properties
+         $('.footer-bottom .container').css({
+            'background-color': '#E8825D'
+        });
+
+        // Changing box-shadow property for .entity-grid class
+        $('.entity-grid').css('box-shadow', 'none');
+
+        // //hiding filter icons
+        $('.input-group-addon').hide();
+
+        var interval = setInterval(function() {
+            $('.input-group-addon').hide();
+        }, 2000); // Hides every 2 seconds
+
+        setTimeout(function() {
+            clearInterval(interval); // Stops after 10 seconds
+        }, 10000); // 10 seconds
+
+
+        //hiding filter for family filter
+        $('.fa-filter').hide();
+
+        $('.input-group .form-control').css({
+            'border': '1.50px #DBDBDB solid !important'
+        });
+
+        // Select the button element by its class
+        var buttonElement = $('.btn-entitylist-filter-submit');
+
+        // Define the URL of the PNG image
+        var iconUrl = '/filter_icon.png'; // Update this with the actual path to your PNG image
+
+        // Check if the icon has already been added
+        if (!buttonElement.find('.filter-icon').length) {
+            // Define the HTML for the icon
+            var iconHtml = '<img src="' + iconUrl + '" alt="Filter Icon" class="filter-icon">'; // Update the alt text and class as needed
+
+            // Prepend the icon HTML to the button element
+            buttonElement.prepend(iconHtml);
+        }
+
+        // Applying styles to .filter-button class
+        $('.filter-button').css({
+            'border-radius': '4px',
+            'border': '1px solid var(--primary-DEFAULT-primary-700, #2C2C2C)',
+            'background-color': '#2C2C2C',
+            'color': 'white',
+            'box-shadow': '0px -3px 8px rgba(0, 0, 0, 0.50) inset'
+        });
+
+        $('.filter-button').hover(function() {
+        $(this).addClass('hover-filter-effect');
+        }, function() {
+        $(this).removeClass('hover-filter-effect');
+        });
+
+        // Applying hover styles to .filter-button class
+     /*   $('.filter-button').hover(function() {
+            // Mouse enter event
+            $(this).css({
+                'background': '#FFF',
+                'color': 'black'
+                // Add any additional hover styles here
+            });
+        }, function() {
+            // Mouse leave event
+            $(this).css({
+                'background': 'var(--white-DEFAULT-white-700, #FFF)',
+                'color': 'black'
+                // Add any additional hover styles here
+            });
+        });*/
+
+
+        // //applying code for on hover of tabs
+        // $('.btn-tab1, .btn-tab2, .btn-tab3, .btn-tab4').hover(function() {
+        //     $(this).css({
+        //         'color': 'red',
+        //         'font-weight': '700',
+        //         // 'border-color': 'lightgrey'
+        //     });
+        // }, function() {
+        //     $(this).css({
+        //         'color': '#6E6E6E',
+        //         'font-weight': '400'
+        //     });
+        // });
+
+        // // Applying hover styles to .btn-tab1, .btn-tab2, .btn-tab3, .btn-tab4 classes
+        // $('.btn-tab1, .btn-tab2, .btn-tab3, .btn-tab4').not('.active').hover(
+        //     function() {
+        //         $(this).css({
+        //             'color': 'red',
+        //             'font-weight': '700'
+        //             // Add other hover styles here
+        //         });
+        //     },
+        //     function() {
+        //         $(this).css({
+        //             'color': '#6E6E6E',
+        //             'font-weight': '400'
+        //             // Add other default styles here
+        //         });
+        //     }
+        // );
+
+       // Function to apply hover styles
+        function applyHoverStyles() {
+            $('.btn-tab1, .btn-tab2, .btn-tab3, .btn-tab4').not('.active').hover(
+                function() {
+                    $(this).css({
+                        'color': 'red',
+                        'font-weight': '700'
+                        // Add other hover styles here
+                    });
+                },
+                function() {
+                    $(this).css({
+                        'color': '#6E6E6E',
+                        'font-weight': '400'
+                        // Add other default styles here
+                    });
+                }
+            );
+        }
+
+        // Call the function to apply hover styles initially
+      //  applyHoverStyles();
+
+        // Event listener for when the active state changes
+      //  $('.btn-tab1, .btn-tab2, .btn-tab3, .btn-tab4').click(function() {
+            // Remove active class from all buttons
+         //   $('.btn-tab1, .btn-tab2, .btn-tab3, .btn-tab4').removeClass('active');
+            // Add active class to the clicked button
+         //   $(this).addClass('active');
+            // Apply hover styles after the active state changes
+           // applyHoverStyles();
+          // console.log('clicked');
+          // applyButtonStyles();
+       // });
+
+        
+    }); 
+
+
+
+    ///   
+});
+
+/*$(document).ready(function(){
+    function applyButtonStyles() {
+        // Array of classes and corresponding text
+        var buttons = [
+            { class: "btn-tab1", text: "Dimensions" , image: "Dimensions.svg" },
+            { class: "btn-tab2", text: "Basic Attributes", image: "Basic-Attributes.svg" },
+            { class: "btn-tab3", text: "Additional Attributes" , image: "Additional-Attributes.svg" },
+            { class: "btn-tab4", text: "Family Attributes" , image: "Family-Attributes.svg" }
+        ];
+
+        // Apply styles to each button with a delay
+         $(".entitylist.entity-grid").on("loaded", function () {
+        buttons.forEach(function(buttonInfo, index) {
+                // Event listener for button clicks using onclick attributes
+                $('button[class^="' + buttonInfo.class + '"]').on('click', function() {
+                    console.log('clicked');
+                    applyButtonStyles();
+                });
+
+              $('.btn-tab1, .btn-tab2, .btn-tab3, .btn-tab4').click(function() {
+                    console.log('clicked');
+                    applyButtonStyles();
+                });
+
+                // Select buttons by class
+                var buttons = $('.' + buttonInfo.class);
+
+                // Loop through each button
+                buttons.each(function() {
+                    var button = $(this);
+
+                    // Remove the <i> elements with the specified classes
+                    button.find('i.glyphicon.glyphicon-th-list').remove();
+                    button.find('i.glyphicon.glyphicon-th').remove();
+                    // Wrap existing content in a container
+                    button.html('<div class="button-content">' + buttonInfo.text + '</div>');
+                    // Generate dynamic src for the image using the image filename from the array
+                    var imageSrc = '/' + buttonInfo.image;
+
+                    // Prepend the image to the container
+                    button.find('.button-content').prepend('<img src="' + imageSrc + '">');
+                    // Update the styles
+                    button.css({
+                        'color': '#6E6E6E',
+                        'font-size': '16px',
+                        // 'font-family': 'Inter',
+                        'font-weight': '400',
+                        'line-height': '24px',
+                        'word-wrap': 'break-word',
+                        'background-color': 'transparent',
+                        'padding': '5px', // Add padding for better appearance
+                        //trying to style button 
+                        'margin-right': '8px',
+                        'width': '150px',
+                        'height': '92px',
+                        'border-bottom': 'none',
+                        'border-bottom-radius': '0',
+                        // 'border-bottom-left-radius': 'inherit',
+                        // 'border-bottom-right-radius': 'inherit',
+                        // 'box-shadow': 'none'
+                        'border-radius': '8px 8px 0px 0px',
+                        //'background':  '#FFFAF1',
+                        'box-shadow': 'none'
+                    });
+                    // Style the button content
+                    button.find('.button-content').css({
+                        'text-align': 'center', // Center the content horizontally
+                        'margin-top': '5px' // Add margin at the top
+                    });
+                    // Style the image
+                    button.find('.button-content img').css({
+                        'display': 'block', // Make the image a block element
+                        'margin': '0 auto' // Center the image horizontally
+                    });
+
+                     // Check if the button has the class 'btn-tab4'
+                     if (buttonInfo.class === 'btn-tab3') {
+                        button.css('width', '180px'); // Apply width of 180px
+                    }
+
+                    $('.btn-tab1, .btn-tab2, .btn-tab3, .btn-tab4').click(function() {
+                        var $button = $(this);
+
+                        // Check if the button has the "active" class
+                        if ($button.hasClass('active')) {
+                            // Apply CSS properties if the button is active
+                            $button.css({
+                                // Add your CSS properties for the active state here
+                                'color': '#C61B1A', // Example CSS property
+                                'background':  '#FFFAF1',
+                                'font-weight': '700',// Example CSS property
+                                'border-bottom': '3px solid #C61B1A'
+                            });
+                        }
+                    });
+
+                });
+            }); // Repeat every second, but staggered by index
+        });
+    }
+
+    // Call the function when the document is ready
+  // applyButtonStyles();
+});*/
+
+
+
+
+
+</script>
+
+<style>
+
+/* Define a class for the hover effect */
+.hover-effect {
+  color: white !important;
+  background-color: #2C2C2C !important;
+  border-color: #2C2C2C !important;
+}
+.hover-filter-effect {
+  color: white !important;
+  background-color: #2C2C2C !important;
+  border: 2px solid #ffffff !important;
+}
+
+.hover-save-effect {
+  color: #2C2C2C !important;
+  background-color: white !important;
+  border: 2px solid #ffffff !important;
+}
+
+
+</style>
