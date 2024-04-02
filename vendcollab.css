@@ -323,7 +323,9 @@ table thead tr th {
 }
 
 .btn-success:hover{
-    border: 1px solid rgb(255, 255, 255);
+    border: 1px solid rgb(255, 255, 255) !important;
+    color: #000 !important;
+    background-color: #ffffff !important;
 }
 
 
@@ -333,13 +335,18 @@ table thead tr th {
 
 /* Apply Css to form Primary Button */
 
-.btn-primary{
-    background: #2C2C2C;
-    border-radius: 4px;
-    box-shadow: 0px -3px 8px black inset;
-    /* border: 1px solid white; */
-    color:white
+input#ContentContainer_MainContent_MainContent_ContentBottom_SubmitButton{
+    background: #2C2C2C !important;
+    border-radius: 4px !important;
+    box-shadow: 0px -3px 8px black inset !important;
+    border: none !important;
+}
 
+input#ContentContainer_MainContent_MainContent_ContentBottom_SubmitButton{
+    color: #fff !important;
+    background-color: #000000 !important;
+    border-color: #000000 !important;
+    border: none !important;
 }
 
 /* ........................................................................ */
@@ -365,6 +372,28 @@ table thead tr th {
 }
 
 /* .................................. */
+
+/* ................. Adjusting Filetr and Removeing Extra Spaces -26-03-2024,Sathish Ch ................................... */
+
+.pannel-body
+{
+ display: flex;
+ height: 100px;
+}
+
+#entitylist-filters{
+flex:auto
+}
+
+.view-toolbar{
+padding-top:10px
+}
+
+.pull-right{
+align-content:end;
+}
+
+/* ............................... End .................................................................... */
 
 
 
