@@ -46,7 +46,7 @@ var createPackage = {
 		}
 	},
 
-	getBaseData: function (selectedRows, control) {
+	getBaseData: async function (selectedRows, control) {
 		try {
 			//var firstRow = selectedRows.getAll()[0].getData().getEntity().attributes._collection;
 			var firstRow = selectedRows[0];
@@ -57,6 +57,7 @@ var createPackage = {
 			var assemblyrequired = false;
 			var genericGUID = firstRow._bdf_generic_value;
 			var projectGUID;
+			
 			if (Xrm.Page.data.entity.getEntityName() == 'bdf_generic') {
 				projectGUID = firstRow._bdf_project_value;
 			}
@@ -66,12 +67,55 @@ var createPackage = {
 
 			var dc5Indicator = false;
 			var productType = '';
-			selectedRows.forEach(function (row) {
+			var primaryGeneric=false;
+            for (const row of selectedRows) {
 
 				// if (row["_cr60a_producttype_value@OData.Community.Display.V1.FormattedValue"] == "Mattresses") {
 				// 	genericGUID = row["_bdf_generic_value"];
 				// 	projectGUID = row["_bdf_project_value"];
 				// }
+
+				// Getting all generics based on
+
+
+                var selectedRowGenericGuid=row["_bdf_generic_value"].toLowerCase(); // Getting Selected Row Guid
+				var selectedRowProjectGuid=projectGUID.toLowerCase(); // Getting Selected Row Guid
+				console.log("Project_Guid:" +checkprojectGUID)
+
+				if(selectedRowGenericGuid!==null && selectedRowProjectGuid!==null){ 
+
+					await Xrm.WebApi.retrieveMultipleRecords("bdf_generic", "?$select=bdf_genericid,bdf_genericname&$filter=_bdf_project_value eq "+checkprojectGUID+"").then(
+						function success(results) {
+							console.log(results);
+							console.log(checkgenericGuid);
+							for (var i = 0; i < results.entities.length; i++) {
+								var result = results.entities[i];
+								// Columns
+								var bdf_genericid = result["bdf_genericid"]; // Guid
+								var bdf_genericname = result["bdf_genericname"]; // Text
+
+								// Cheking Primary Generic is Present in Projects Promary Generic or Not Based on that changing the primary Generic Value
+								
+
+								if(selectedRowGenericGuid===bdf_genericid){
+									primaryGeneric=true;
+
+									if(primaryGeneric===true){
+										genericGUID=bdf_genericid;
+										break;
+									}
+								}
+
+								
+							}
+						},
+						function(error) {
+							//console.log(error.message);
+							Xrm.Navigation.openAlertDialog(error.message)
+						}
+					);
+
+				}
 
 				if (row["bdf_dc5indicator"] == true) {
 					dc5Indicator = true;
@@ -84,7 +128,7 @@ var createPackage = {
 					let shortName = row.cr60a_ProductType.bdf_producttypeshortname;
 					productType = productType + ', ' + (shortName == null ? row["_cr60a_producttype_value@OData.Community.Display.V1.FormattedValue"] : shortName);
 				}
-			});
+			};
 
 			var pc = ' ' + selectedRows.length + 'PC ';
 
