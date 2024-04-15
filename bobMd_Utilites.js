@@ -78,11 +78,11 @@ var createPackage = {
 				// Getting all generics based on
 
 
-                var selectedRowGenericGuid=row["_bdf_generic_value"].toLowerCase(); // Getting Selected Row Guid
-				var selectedRowProjectGuid=projectGUID.toLowerCase(); // Getting Selected Row Guid
+                var checkgenericGuid=row["_bdf_generic_value"].toLowerCase();
+				var checkprojectGUID=projectGUID.toLowerCase();
 				console.log("Project_Guid:" +checkprojectGUID)
 
-				if(selectedRowGenericGuid!==null && selectedRowProjectGuid!==null){ 
+				if(checkgenericGuid!==null && checkprojectGUID!==null){
 
 					await Xrm.WebApi.retrieveMultipleRecords("bdf_generic", "?$select=bdf_genericid,bdf_genericname&$filter=_bdf_project_value eq "+checkprojectGUID+"").then(
 						function success(results) {
@@ -94,10 +94,7 @@ var createPackage = {
 								var bdf_genericid = result["bdf_genericid"]; // Guid
 								var bdf_genericname = result["bdf_genericname"]; // Text
 
-								// Cheking Primary Generic is Present in Projects Promary Generic or Not Based on that changing the primary Generic Value
-								
-
-								if(selectedRowGenericGuid===bdf_genericid){
+								if(checkgenericGuid===bdf_genericid){
 									primaryGeneric=true;
 
 									if(primaryGeneric===true){
@@ -110,8 +107,7 @@ var createPackage = {
 							}
 						},
 						function(error) {
-							//console.log(error.message);
-							Xrm.Navigation.openAlertDialog(error.message)
+							console.log(error.message);
 						}
 					);
 

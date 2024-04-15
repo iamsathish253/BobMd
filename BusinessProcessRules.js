@@ -261,8 +261,16 @@ async function addHardStop(executionContext) {
 	let projectID = formContext.data.entity.getId().slice(1, -1);
 	let error = false;
 	let direction = executionContext.getEventArgs().getDirection();
+    let factory=formContext.getAttribute("bdf_factory").getValue();
+   
 
+    // Making Factory Field Requried ..................................... Sathish - 12-04-2024
+    
+    if(formContext.data.process.getActiveStage().getName() =='Design & Costing' && direction=="Next" && factory==null){
 
+    setProjectMandatoryFields(executionContext);
+   
+}
 
 
 	if (formContext.data.process.getActiveStage().getName() == 'QC & Compliance' ||
@@ -750,7 +758,16 @@ function setProjectMandatoryFields(executionContext) {
 	if (formContext.data.process != null && formContext.data.process.getActiveStage() != null && formContext.data.process.getActiveStage().getName() != 'Ideation') {
 		formContext.getAttribute("bdf_vendor").setRequiredLevel("required");
 		formContext.getAttribute("bdf_factory").setRequiredLevel("required");
+        Xrm.Navigation.openAlertDialog({
+            text: "Missing factory Value. Please provide this information before proceeding."
+        });
+
+        return;
 	}
+
+
+
+    
 }
 
 //code for setting setup time on creation of new article
