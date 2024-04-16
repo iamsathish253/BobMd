@@ -271,10 +271,36 @@ async function addHardStop1(executionContext) {
 	let error = false;
 
 
-    // preventing generic satge of costing and designing when Project Table Factory is Empty
+    // preventing generic satge of costing and designing when Project Table Factory is Empty 
 
+   if(genericStage=='2'){
+    await Xrm.WebApi.retrieveRecord("bdf_generic", ""+genericID+"", "?$expand=bdf_Project($select=_bdf_factory_value)").then(
+        function success(result) {
+            console.log(result);
+            // Columns
+            var bdf_genericid = result["bdf_genericid"]; // Guid
+            
+            // Many To One Relationships
+            if (result.hasOwnProperty("bdf_Project") && result["bdf_Project"] !== null) {
+                var bdf_Project_bdf_factory = result["bdf_Project"]["_bdf_factory_value"]; // Lookup
+               // var bdf_Project_bdf_factory_formatted = result["bdf_Project"]["_bdf_factory_value@OData.Community.Display.V1.FormattedValue"];
+                //var bdf_Project_bdf_factory_lookuplogicalname = result["bdf_Project"]["_bdf_factory_value@Microsoft.Dynamics.CRM.lookuplogicalname"];
+
+                if(bdf_Project_bdf_factory!==undefined || bdf_Project_bdf_factory!==null){
+                    Xrm.Navigation.openAlertDialog({text:"Missing Factory Field Value in Related Project. Please provide this information before proceeding."});
+
+                }
+            }
+        },
+        function(error) {
+            console.log(error.message);
+        }
+    );
     
+   }
 
+    //...........................................................End............................................
+      
 
 
 
