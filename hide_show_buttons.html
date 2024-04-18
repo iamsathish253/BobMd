@@ -1,0 +1,1238 @@
+
+<script>
+
+
+    // Define the update function for hiding the DimensionTab
+    function update2() {
+      var tab1 = $(".btn-tab1")
+      var tab2 = $(".btn-tab2");
+      var tab3 = $(".btn-tab3");
+      var tab4 = $(".btn-tab4");
+      var tab5 = $(".btn-tab5");
+      var tab6 = $(".btn-tab6");
+      var tab7 = $(".btn-tab7");
+      tab1.removeClass('active');
+      tab2.addClass('active');
+      tab3.removeClass('active');
+      tab4.removeClass('active');
+      tab5.removeClass('active');
+      tab6.removeClass('active');
+      tab7.removeClass('active');
+      
+      var dimensionTab = $(".DimensionTab");
+      dimensionTab.hide();
+  
+       var AttributeGeneralTab = $(".AttributeGeneralTab");
+       AttributeGeneralTab.hide();
+  
+       var AttributePGAViewTab = $(".AttributePGAViewTab");
+       AttributePGAViewTab.hide();
+  
+       var AttributeLaceysViewTab = $(".AttributeLaceysViewTab");
+       AttributeLaceysViewTab.hide();
+  
+       var AttributeHTSViewTab = $(".AttributeHTSViewTab");
+       AttributeHTSViewTab.hide();
+  
+      ////
+  
+      // Get the selected value of the dropdown with id "dropdown_3"
+          var selectedValue1 = $("#dropdown_3").val();
+          // Find the associated minor code for the selected project
+          var selectedValue = null;
+          for (var i = 0; i < projectData.length; i++) {
+              if (projectData[i].projectName === selectedValue1) {
+                  selectedValue = projectData[i].minorCode;
+                 // console.log(selectedValue);
+                  break;
+              }
+          }
+  
+          //Filter based on minor codes
+  
+         if (selectedValue === "2010" || selectedValue === "2020" || selectedValue === "4530" || selectedValue === "5550") {
+            $(".AttributeBeddingTab").show();
+            $(".AttributeBedroomTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeLivingTab, .AttributeOutletTab, .AttributeRugTab, .DimensionTab, .AttributeGeneralTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+  
+          } else if (selectedValue === "1010" || selectedValue === "1030" || selectedValue === "1050" || selectedValue === "1060" || selectedValue === "1540" || selectedValue === "1580" || selectedValue === "5020" || selectedValue === "5510" || selectedValue === "5515" || selectedValue === "5580") {
+             $(".AttributeLivingTab").show();
+             $(".AttributeBeddingTab, .AttributeBedroomTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeOutletTab, .AttributeRugTab, .DimensionTab, .AttributeGeneralTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+             
+  
+           } else if (selectedValue === "1530" || selectedValue === "1535" || selectedValue === "2030" || selectedValue === "2540" || selectedValue === "5530" || selectedValue === "5535" || selectedValue === "5540") {
+              $(".AttributeBedroomTab").show();
+              $(".AttributeBeddingTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeLivingTab, .AttributeOutletTab, .AttributeRugTab, .DimensionTab, .AttributeGeneralTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+      
+           } else if (selectedValue === "1020" || selectedValue === "1510" || selectedValue === "1520" || selectedValue === "1550" || selectedValue === "1560" || selectedValue === "5010" || selectedValue === "5545" || selectedValue === "5555") {
+              $(".AttributeDiningTab").show();
+              $(".AttributeBeddingTab, .AttributeBedroomTab, .AttributeDTCTab, .AttributeLightTab, .AttributeLivingTab, .AttributeOutletTab, .AttributeRugTab, .DimensionTab, .AttributeGeneralTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+              
+          } else if (selectedValue === "3010" || selectedValue === "3020" || selectedValue === "3030") {
+  
+              $(".AttributeLightTab").show();
+              $(".AttributeBeddingTab, .AttributeBedroomTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLivingTab, .AttributeOutletTab, .AttributeRugTab, .DimensionTab, .AttributeGeneralTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+              
+          } else if (selectedValue === "4040" || selectedValue === "5595") {
+  
+              $(".AttributeRugTab").show();
+              $(".AttributeBeddingTab, .AttributeBedroomTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeLivingTab, .AttributeOutletTab, .DimensionTab, .AttributeGeneralTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+              
+           } else if (selectedValue === "1570" || selectedValue === "2510" || selectedValue === "2520" || selectedValue === "2530" || selectedValue === "4010" || selectedValue === "4020" || selectedValue === "4030" || selectedValue === "4110" || selectedValue === "5030" || selectedValue === "5560" || selectedValue === "5590" || selectedValue === "4510" || selectedValue === "4520") {
+              $(".AttributeDTCTab").show();
+              $(".AttributeBeddingTab, .AttributeBedroomTab, .AttributeDiningTab, .AttributeLightTab, .AttributeLivingTab, .AttributeOutletTab, .AttributeRugTab, .DimensionTab, .AttributeGeneralTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+              
+          } else {
+                  
+              $(".AttributeOutletTab").show();
+              $(".AttributeOutletTab .view-grid").hide();
+              $(".AttributeBeddingTab, .AttributeBedroomTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeLivingTab, .AttributeRugTab, .DimensionTab, .AttributeGeneralTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab ").hide();
+  
+          }
+  
+    ////
+      
+    }
+  
+    // Define the update function for hiding the DimensionTab
+    function update4() {
+      //console.log('clicked');
+  
+      var tab1 = $(".btn-tab1")
+      var tab2 = $(".btn-tab2");
+      var tab3 = $(".btn-tab3");
+      var tab4 = $(".btn-tab4");
+      var tab5 = $(".btn-tab5");
+      var tab6 = $(".btn-tab6");
+      var tab7 = $(".btn-tab7");
+      tab1.removeClass('active');
+      tab3.addClass('active');
+      tab2.removeClass('active');
+      tab4.removeClass('active');
+      tab5.removeClass('active');
+      tab6.removeClass('active');
+      tab7.removeClass('active');
+  
+      var dimensionTab = $(".DimensionTab");
+      dimensionTab.hide();
+  
+       var AttributeGeneralTab = $(".AttributeGeneralTab");
+       AttributeGeneralTab.hide();
+  
+       var AttributePGAViewTab = $(".AttributePGAViewTab");
+       AttributePGAViewTab.hide();
+  
+       var AttributeLaceysViewTab = $(".AttributeLaceysViewTab");
+       AttributeLaceysViewTab.hide();
+  
+       var AttributeHTSViewTab = $(".AttributeHTSViewTab");
+       AttributeHTSViewTab.hide();
+  
+      ////
+  
+      // Get the selected value of the dropdown with id "dropdown_3"
+          var selectedValue1 = $("#dropdown_3").val();
+          // Find the associated minor code for the selected project
+          var selectedValue = null;
+          for (var i = 0; i < projectData.length; i++) {
+              if (projectData[i].projectName === selectedValue1) {
+                  selectedValue = projectData[i].minorCode;
+                 // console.log(selectedValue);
+                  break;
+              }
+          }
+  
+          //Filter based on minor codes
+  
+         if (selectedValue === "2010" || selectedValue === "2020" || selectedValue === "4530" || selectedValue === "5550") {
+            $(".AttributeAdditionalBeddingTab").show();
+            $(".AttributeBedroomTab, .AttributeBeddingTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeLivingTab, .AttributeOutletTab, .AttributeRugTab, .DimensionTab, .AttributeGeneralTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+  
+          } else if (selectedValue === "1010" || selectedValue === "1030" || selectedValue === "1050" || selectedValue === "1060" || selectedValue === "1540" || selectedValue === "1580" || selectedValue === "5020" || selectedValue === "5510" || selectedValue === "5515" || selectedValue === "5580") {
+             $(".AttributeAdditionalLivingTab").show();
+             $(".AttributeBeddingTab, .AttributeBedroomTab, .AttributeLivingTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeOutletTab, .AttributeRugTab, .DimensionTab, .AttributeGeneralTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+             
+           } else if (selectedValue === "1020" || selectedValue === "1510" || selectedValue === "1520" || selectedValue === "1550" || selectedValue === "1560" || selectedValue === "5010" || selectedValue === "5545" || selectedValue === "5555") {
+              $(".AttributeAdditionalDiningTab").show();
+              $(".AttributeBeddingTab, .AttributeBedroomTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeLivingTab, .AttributeOutletTab, .AttributeRugTab, .DimensionTab, .AttributeGeneralTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+  
+          } else {
+                  
+              $(".AttributeOutletTab").show();
+              $(".AttributeOutletTab .view-grid").hide();
+              $(".AttributeBeddingTab, .AttributeBedroomTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeLivingTab, .AttributeRugTab, .DimensionTab, .AttributeGeneralTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+  
+          }
+  
+    ////
+      
+    }
+  
+     // Define the update function for showing the DimensionTab
+    function update1() {
+      var tab1 = $(".btn-tab1")
+      var tab2 = $(".btn-tab2");
+      var tab3 = $(".btn-tab3");
+      var tab4 = $(".btn-tab4");
+      var tab5 = $(".btn-tab5");
+      var tab6 = $(".btn-tab6");
+      var tab7 = $(".btn-tab7");
+      tab1.addClass('active');
+      tab2.removeClass('active');
+      tab3.removeClass('active');
+      tab4.removeClass('active');
+      tab5.removeClass('active');
+      tab6.removeClass('active');
+      tab7.removeClass('active');
+  
+      $(".DimensionTab").show();
+      $(".AttributeBeddingTab, .AttributeBedroomTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeLivingTab, .AttributeRugTab, .AttributeOutletTab, .AttributeGeneralTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+     
+    }
+    
+  
+    // Define the update function for showing the BasicTab
+    function update3() {
+      var tab1 = $(".btn-tab1")
+      var tab2 = $(".btn-tab2");
+      var tab3 = $(".btn-tab3");
+      var tab4 = $(".btn-tab4");
+      var tab5 = $(".btn-tab5");
+      var tab6 = $(".btn-tab6");
+      var tab7 = $(".btn-tab7");
+      tab1.removeClass('active');
+      tab2.removeClass('active');
+      tab3.removeClass('active');
+      tab4.addClass('active');
+      tab5.removeClass('active');
+      tab6.removeClass('active');
+      tab7.removeClass('active');
+  
+  
+      $(".AttributeGeneralTab").show();
+      $(".AttributeBeddingTab, .AttributeBedroomTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeLivingTab, .AttributeRugTab, .AttributeOutletTab, .DimensionTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+     
+    }
+  
+    function update5() {
+      var tab1 = $(".btn-tab1")
+      var tab2 = $(".btn-tab2");
+      var tab3 = $(".btn-tab3");
+      var tab4 = $(".btn-tab4");
+      var tab5 = $(".btn-tab5");
+      var tab6 = $(".btn-tab6");
+      var tab7 = $(".btn-tab7");
+      tab1.removeClass('active');
+      tab2.removeClass('active');
+      tab3.removeClass('active');
+      tab4.removeClass('active');
+      tab5.addClass('active');
+      tab6.removeClass('active');
+      tab7.removeClass('active');
+  
+      $(".AttributePGAViewTab").show();
+      $(".AttributeGeneralTab, .AttributeBeddingTab, .AttributeBedroomTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeLivingTab, .AttributeRugTab, .AttributeOutletTab, .DimensionTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributeLaceysViewTab, .AttributeHTSViewTab").hide();
+    }
+  
+    function update6() {
+      var tab1 = $(".btn-tab1")
+      var tab2 = $(".btn-tab2");
+      var tab3 = $(".btn-tab3");
+      var tab4 = $(".btn-tab4");
+      var tab5 = $(".btn-tab5");
+      var tab6 = $(".btn-tab6");
+      var tab7 = $(".btn-tab7");
+      tab1.removeClass('active');
+      tab2.removeClass('active');
+      tab3.removeClass('active');
+      tab4.removeClass('active');
+      tab5.removeClass('active');
+      tab6.addClass('active');
+      tab7.removeClass('active');
+  
+      $(".AttributeLaceysViewTab").show();
+      $(".AttributeGeneralTab, .AttributeBeddingTab, .AttributeBedroomTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeLivingTab, .AttributeRugTab, .AttributeOutletTab, .DimensionTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeHTSViewTab").hide();
+    }
+  
+    function update7() {
+      var tab1 = $(".btn-tab1")
+      var tab2 = $(".btn-tab2");
+      var tab3 = $(".btn-tab3");
+      var tab4 = $(".btn-tab4");
+      var tab5 = $(".btn-tab5");
+      var tab6 = $(".btn-tab6");
+      var tab7 = $(".btn-tab7");
+      tab1.removeClass('active');
+      tab2.removeClass('active');
+      tab3.removeClass('active');
+      tab4.removeClass('active');
+      tab5.removeClass('active');
+      tab6.removeClass('active');
+      tab7.addClass('active');
+  
+      $(".AttributeHTSViewTab").show();
+      $(".AttributeGeneralTab, .AttributeBeddingTab, .AttributeBedroomTab, .AttributeDiningTab, .AttributeDTCTab, .AttributeLightTab, .AttributeLivingTab, .AttributeRugTab, .AttributeOutletTab, .DimensionTab, .AttributeAdditionalBeddingTab, .AttributeAdditionalDiningTab, .AttributeAdditionalLivingTab, .AttributePGAViewTab, .AttributeLaceysViewTab").hide();
+    }
+  
+    // This is Function call when click Tab Click
+
+
+    function hideandShowButtons(){
+
+        debugger;
+
+        if ($("#tempDownloadExtButt").is(":visible") && $("#tempuUploadExtButt").is(":visible")) {
+            // Button is visible
+            $('a#tempDownloadButt').hide();
+            $('a#varUploadButt').hide();
+            console.log("Button is visible");
+        } else {
+            // Button is not visible
+            $('a#tempDownloadButt').hide();
+            $('a#varUploadButt').hide();
+            $('a#tempDownloadExtButt').show();
+            $('a#tempuUploadExtButt').show();
+            console.log("Button is not visible");
+        }
+
+
+        }
+
+
+        function hideandShowButtonsDefualt(){
+
+        debugger;
+
+        if ($("##tempDownloadButt").is(":visible") && $("#varUploadButt").is(":visible")) {
+            // Button is visible
+        $('a#tempDownloadExtButt').hide();
+        $('a#tempuUploadExtButt').hide();
+            console.log("Button is visible");
+
+        } else {
+            // Button is not visible
+
+            $('a#tempDownloadExtButt').hide();
+            $('a#tempuUploadExtButt').hide();
+            $('a#tempDownloadButt').show();
+            $('a#varUploadButt').show();
+            
+            console.log("Button is not visible");
+        }
+
+
+        }
+    //........................End..................................................................
+    
+  
+  $(document).ready(function () {
+
+    // Creating variantExtension Download and Upload Buttons .... Sathish- 16-04-2024
+
+    let additionalButtonD = "<a id='tempDownloadExtButt' href='#' class='entitylist-download btn btn-info pull-right action' title='Download Template'><span class='icon'></span> Download Articles Ex</a>";
+
+    let additionalButtonU = "<a id='tempuUploadExtButt' href='#' class='entitylist-download btn btn-info pull-right action' title='Download Template'><span class='icon'></span> Upload Articles Ex</a>";
+
+    $('div.toolbar-actions div:nth-child(2).pull-left').append(additionalButtonU);
+    $('div.toolbar-actions div:nth-child(2).pull-left').append(additionalButtonD);
+
+    $('a#tempDownloadExtButt').hide();
+    $('a#tempuUploadExtButt').hide();
+
+    $(".btn.btn-tab6.btn-success.btn-large").click(hideandShowButtons);
+    $(".btn.btn-tab5.btn-success.btn-large").click(hideandShowButtons);
+    $(".btn.btn-tab7.btn-success.btn-large").click(hideandShowButtons);
+    $(".btn.btn-tab1.btn-success.btn-large").click(hideandShowButtonsDefualt);
+    $(".btn.btn-tab2.btn-success.btn-large").click(hideandShowButtonsDefualt);
+    $(".btn.btn-tab3.btn-success.btn-large").click(hideandShowButtonsDefualt);
+    $(".btn.btn-tab4.btn-success.btn-large").click(hideandShowButtonsDefualt);
+
+
+    //......................................End...........................................
+     
+    var dimensionTab = $(".DimensionTab");
+    //dimensionTab.hide();
+  
+    $(".entitylist.entity-grid").on("loaded", function () {
+      // Find the "pull-right toolbar-actions" element
+      var toolbarActions = $(this).find(".pull-right.toolbar-actions");
+  
+      // Check if the entity list is under .AttributeTab
+      if ($(this).closest(".AttributeBeddingTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrBedTab1') === null) {
+       
+        var newButton1 = $('<button id="AttrBedTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrBedTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrBedTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrBedTab4" class="btn btn-tab4 btn-success btn-large active" onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrBedTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrBedTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrBedTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+  
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+        
+        
+        
+      }
+      }
+  
+      // Check if the entity list is under .AttributeTab
+      if ($(this).closest(".AttributeBedroomTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrBedrmTab1') === null) {
+       
+        var newButton1 = $('<button id="AttrBedrmTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrBedrmTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrBedrmTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrBedrmTab4" class="btn btn-tab4 btn-success btn-large" onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrBedrmTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrBedrmTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrBedrmTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+  
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+       
+        
+      }
+      }
+  
+      // Check if the entity list is under .AttributeTab
+      if ($(this).closest(".AttributeDiningTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrDinTab1') === null) {
+        
+        var newButton1 = $('<button id="AttrDinTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrDinTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrDinTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrDinTab4" class="btn btn-tab4 btn-success btn-large" onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrDinTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrDinTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrDinTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+         toolbarActions.after(newButton);
+         toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+       
+      }
+      }
+  
+      // Check if the entity list is under .AttributeTab
+      if ($(this).closest(".AttributeDTCTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrDcTab1') === null) {
+        
+        var newButton1 = $('<button id="AttrDcTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrDcTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrDcTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrDcTab4" class="btn btn-tab4 btn-success btn-large" onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrDcTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrDcTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrDcTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+        
+      }
+      }
+  
+      // Check if the entity list is under .AttributeTab
+      if ($(this).closest(".AttributeLightTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrLiTab1') === null) {
+        
+        var newButton1 = $('<button id="AttrLiTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrLiTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrLiTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrLiTab4" class="btn btn-tab4 btn-success btn-large " onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrLiTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrLiTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrLiTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+  
+      
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+        
+        
+      }
+      }
+  
+      // Check if the entity list is under .AttributeTab
+      if ($(this).closest(".AttributeLivingTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrLivTab1') === null) {
+       
+        var newButton1 = $('<button id="AttrLivTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrLivTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrLivTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrLivTab4" class="btn btn-tab4 btn-success btn-large " onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrLivTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrLivTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrLivTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+      
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+       
+        
+      }
+      }
+  
+      // Check if the entity list is under .AttributeTab
+      if ($(this).closest(".AttributeOutletTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrOutTab1') === null) {
+      
+        var newButton1 = $('<button id="AttrOutTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrOutTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrOutTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrOutTab4" class="btn btn-tab4 btn-success btn-large " onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrOutTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrOutTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrOutTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+        
+        
+      }
+      }
+  
+      // Check if the entity list is under .AttributeTab
+      if ($(this).closest(".AttributeRugTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrRugTab1') === null) {
+        
+        var newButton1 = $('<button id="AttrRugTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrRugTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrRugTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrRugTab4" class="btn btn-tab4 btn-success btn-large " onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrRugTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrRugTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrOutTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+        
+      }
+      }
+  
+  
+  
+       // Check if the entity list is under .AttributeTab
+      if ($(this).closest(".DimensionTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrTab3') === null) {
+  
+        var newButton1 = $('<button id="AttrTab3" class="btn btn-tab1 btn-success btn-large active" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrTab4" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrTab5" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrTab6" class="btn btn-tab4 btn-success btn-large " onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrTab7" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+      var newButton6 = $('<button id="AttrTab8" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+      var newButton7 = $('<button id="AttrTab9" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+      
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+        // toolbarActions.after(newButton5);
+        // toolbarActions.after(newButton6);
+        
+      }
+      }
+  
+  
+      
+  
+      // Check if the entity list is under .AttributeTab
+      if ($(this).closest(".AttributeGeneralTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrAddTab1') === null) {
+       
+        var newButton1 = $('<button id="AttrAddTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrAddTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrAddTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrAddTab4" class="btn btn-tab4 btn-success btn-large " onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrAddTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrAddTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrAddTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+       
+        
+      }
+      }
+  
+  
+      // Check if the entity list is under .AttributeTab
+      if ($(this).closest(".AttributeAdditionalDiningTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrAddDinTab1') === null) {
+        
+        var newButton1 = $('<button id="AttrAddDinTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrAddDinTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrAddDinTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrAddDinTab4" class="btn btn-tab4 btn-success btn-large " onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrAddDinTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrAddDinTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrAddDinTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+      
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+        
+        
+      }
+      }
+  
+  
+      // Check if the entity list is under .AttributeTab
+      if ($(this).closest(".AttributeAdditionalBeddingTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrAddBedTab1') === null) {
+      
+        var newButton1 = $('<button id="AttrAddBedTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrAddBedTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrAddBedTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrAddBedTab4" class="btn btn-tab4 btn-success btn-large " onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrAddBedTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrAddBedTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrAddBedTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+      
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+        
+        
+      }
+      }
+  
+  
+    // Check if the entity list is under .AttributeTab
+      if ($(this).closest(".AttributeAdditionalLivingTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrAddLivTab1') === null) {
+        
+        var newButton1 = $('<button id="AttrAddLivTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrAddLivTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrAddLivTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrAddLivTab4" class="btn btn-tab4 btn-success btn-large " onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrAddLivTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrAddLivTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrAddLivTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+      
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+        
+        
+      }
+      }
+  
+  
+      // Check if the entity list is under .AttributePGAViewTab
+      if ($(this).closest(".AttributePGAViewTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrPGAViewTab1') === null) {
+        
+        var newButton1 = $('<button id="AttrPGAViewTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrPGAViewTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrPGAViewTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrPGAViewTab4" class="btn btn-tab4 btn-success btn-large " onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrPGAViewTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrPGAViewTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrPGAViewTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+      
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+       
+        
+      }
+      }
+  
+      // Check if the entity list is under .AttributePGAViewTab
+      if ($(this).closest(".AttributeLaceysViewTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttrLaceysViewTab1') === null) {
+        
+        var newButton1 = $('<button id="AttrLaceysViewTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttrLaceysViewTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttrLaceysViewTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttrLaceysViewTab4" class="btn btn-tab4 btn-success btn-large " onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttrLaceysViewTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttrLaceysViewTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttrLaceysViewTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+      
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+       
+        
+      }
+      }
+  
+       // Check if the entity list is under .AttributeHTSViewTab
+       if ($(this).closest(".AttributeHTSViewTab").length > 0) {
+        var subgridTable = $(this).find('.view-grid');
+        // Add margin-top: -15px to .view-grid
+        subgridTable.css("margin-top", "-15px");
+      
+      if (document.getElementById('AttributeHTSViewTab1') === null) {
+        
+        var newButton1 = $('<button id="AttributeHTSViewTab1" class="btn btn-tab1 btn-success btn-large" onclick="update1();"><div class="button-content" style="text-align: center; "><img src="/Dimensions.svg" style="display: block; margin: 0px auto;">Dimensions</div></button>');
+  
+        var newButton = $('<button id="AttributeHTSViewTab2" class="btn btn-tab2 btn-success btn-large" onclick="update2();"><div class="button-content" style="text-align: center; "><img src="/Basic-Attributes.svg" style="display: block; margin: 0px auto;">Basic Attributes</div></button>');
+  
+        var newButton2 = $('<button id="AttributeHTSViewTab3" class="btn btn-tab3 btn-success btn-large" onclick="update4();"><div class="button-content" style="text-align: center; "><img src="/Additional-Attributes.svg" style="display: block; margin: 0px auto;">Additional Attributes</div></button>');
+  
+        var newButton3 = $('<button id="AttributeHTSViewTab4" class="btn btn-tab4 btn-success btn-large " onclick="update3();"><div class="button-content" style="text-align: center; "><img src="/Family-Attributes.svg" style="display: block; margin: 0px auto;">Family Attributes</div></button>');
+  
+        var newButton5 = $('<button id="AttributeHTSViewTab5" class="btn btn-tab5 btn-success btn-large" onclick="update5();"><div class="button-content" style="text-align: center; "><img src="/PGA-attributes.svg" style="display: block; margin: 0px auto;">PGA Attributes</div></button>');
+  
+        var newButton6 = $('<button id="AttributeHTSViewTab6" class="btn btn-tab6 btn-success btn-large" onclick="update6();"><div class="button-content" style="text-align: center; "><img src="/Laceys-attributes.svg" style="display: block; margin: 0px auto;">Lacey\'s Attributes</div></button>');
+  
+        var newButton7 = $('<button id="AttributeHTSViewTab7" class="btn btn-tab7 btn-success btn-large" onclick="update7();"><div class="button-content" style="text-align: center; "><img src="/HTS.svg" style="display: block; margin: 0px auto;">HTS</div></button>');
+  
+      
+        // Insert the new buttons after the toolbar-actions element
+        toolbarActions.after(newButton7);
+        toolbarActions.after(newButton5);
+        toolbarActions.after(newButton6);
+        toolbarActions.after(newButton2);
+        toolbarActions.after(newButton);
+        toolbarActions.after(newButton3);
+        toolbarActions.after(newButton1);
+       
+        
+      }
+      }
+  
+  
+      
+  
+  
+      
+    });
+  
+  
+  
+  });
+  
+  
+  </script>
+  
+  
+  <style>
+  
+  /* Style for the tab buttons */
+  .btn-tab1 {
+    /* width: 150px; 
+    height: 92px; 
+    margin-bottom:-3px; */
+    width: 145px;
+    height: 75px;
+    margin-bottom: -6px;
+    color: rgb(110, 110, 110); 
+    font-size: 16px; 
+    font-weight: 400; 
+    line-height: 24px; 
+    overflow-wrap: break-word; 
+    background-color: transparent; 
+    padding: 5px; 
+    margin-right: 8px; 
+    border: 1px #EBEBEB solid;
+    border-bottom: none; 
+    border-radius: 8px 8px 0px 0px; 
+    box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+    margin-top: 10px;
+  }
+  .btn-tab2 {
+    /* width: 150px; 
+    height: 92px;
+    margin-bottom:-3px; */
+    width: 145px;
+    height: 75px;
+    margin-bottom: -6px;
+    margin-left: 3px;
+    border: 1px #EBEBEB solid;
+    color: rgb(110, 110, 110); 
+    font-size: 16px; 
+    font-weight: 400; 
+    line-height: 24px; 
+    overflow-wrap: break-word; 
+    background-color: transparent; 
+    padding: 5px; 
+    margin-right: 8px; 
+    border-bottom: none; 
+    border-radius: 8px 8px 0px 0px; 
+    box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+    margin-top: 10px;
+  }
+  .btn-tab3 {
+    /* width: 180px; 
+    height: 92px; 
+    margin-bottom:-3px; */
+    width: 180px;
+    height: 75px;
+    margin-bottom: -3px;
+    border: 1px #EBEBEB solid;
+    color: rgb(110, 110, 110); 
+    font-size: 16px; 
+    font-weight: 400; 
+    line-height: 24px; 
+    overflow-wrap: break-word; 
+    background-color: transparent; 
+    padding: 5px; 
+    margin-right: 8px; 
+    border-bottom: none; 
+    border-radius: 8px 8px 0px 0px; 
+    box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+    margin-top: 10px;
+  }
+  
+  .btn-tab4 {
+    /* width: 150px; 
+    height: 92px; 
+    margin-bottom:-3px; */
+    width: 145px;
+    height: 75px;
+    margin-bottom: -6px;
+    color: rgb(110, 110, 110); 
+    font-size: 16px; 
+    font-weight: 400; 
+    border: 1px #EBEBEB solid;
+    line-height: 24px; 
+    overflow-wrap: break-word; 
+    background-color: transparent; 
+    padding: 5px; 
+    margin-right: 8px; 
+    border-bottom: none; 
+    border-radius: 8px 8px 0px 0px; 
+    box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+    margin-top: 10px;
+  }
+  
+  .btn-tab5 {
+    /* width: 150px; 
+    height: 92px; 
+    margin-bottom:-3px; */
+    width: 145px;
+    height: 75px;
+    margin-bottom: -6px;
+    color: rgb(110, 110, 110); 
+    font-size: 16px; 
+    font-weight: 400; 
+    border: 1px #EBEBEB solid;
+    line-height: 24px; 
+    overflow-wrap: break-word; 
+    background-color: transparent; 
+    padding: 5px; 
+    margin-right: 8px; 
+    border-bottom: none; 
+    border-radius: 8px 8px 0px 0px; 
+    box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+    margin-top: 10px;
+  }
+  
+  .btn-tab6 {
+    /* width: 150px; 
+    height: 92px; 
+    margin-bottom:-3px; */
+    width: 145px;
+    height: 75px;
+    margin-bottom: -6px;
+    color: rgb(110, 110, 110); 
+    font-size: 16px; 
+    font-weight: 400; 
+    border: 1px #EBEBEB solid;
+    line-height: 24px; 
+    overflow-wrap: break-word; 
+    background-color: transparent; 
+    padding: 4px; 
+    margin-right: 8px; 
+    border-bottom: none; 
+    border-radius: 8px 8px 0px 0px; 
+    box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+    margin-top: 10px;
+  }
+  
+  .btn-tab7 {
+    /* width: 150px; 
+    height: 92px; 
+    margin-bottom:-3px; */
+    width: 145px;
+    height: 75px;
+    margin-bottom: -6px;
+    color: rgb(110, 110, 110); 
+    font-size: 16px; 
+    font-weight: 400; 
+    border: 1px #EBEBEB solid;
+    line-height: 24px; 
+    overflow-wrap: break-word; 
+    background-color: transparent; 
+    padding: 4px; 
+    margin-right: 8px; 
+    border-bottom: none; 
+    border-radius: 8px 8px 0px 0px; 
+    box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+    margin-top: 10px;
+  }
+  
+  /* Style for the active tab button */
+  .btn-tab1.active {
+   color: #C61B1A !important;
+   background:  #FFFAF1 !important;
+   font-weight: 700 !important;
+   border: 1px #EBEBEB solid;
+   border-bottom: 4px solid #C61B1A !important;
+   box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;                            
+  }
+  .btn-tab2.active {
+    color: #C61B1A !important;
+   background:  #FFFAF1 !important;
+   font-weight: 700 !important;
+   border: 1px #EBEBEB solid;
+   border-bottom: 4px solid #C61B1A !important;
+   box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+  }
+  .btn-tab3.active {
+    color: #C61B1A !important;
+   background:  #FFFAF1 !important;
+   font-weight: 700 !important;
+   border: 1px #EBEBEB solid;
+   border-bottom: 4px solid #C61B1A !important;
+   box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+  }
+  .btn-tab4.active {
+   color: #C61B1A !important;
+   background:  #FFFAF1 !important;
+   font-weight: 700 !important;
+   border: 1px #EBEBEB solid;
+   border-bottom: 4px solid #C61B1A !important;
+   box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+  }
+  
+  .btn-tab5.active {
+   color: #C61B1A !important;
+   background:  #FFFAF1 !important;
+   font-weight: 700 !important;
+   border: 1px #EBEBEB solid;
+   border-bottom: 6px solid #C61B1A !important;
+   box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+  }
+  
+  .btn-tab6.active {
+   color: #C61B1A !important;
+   background:  #FFFAF1 !important;
+   font-weight: 700 !important;
+   border: 1px #EBEBEB solid;
+   border-bottom: 6px solid #C61B1A !important;
+   box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+  }
+  
+  .btn-tab7.active {
+   color: #C61B1A !important;
+   background:  #FFFAF1 !important;
+   font-weight: 700 !important;
+   border: 1px #EBEBEB solid;
+   border-bottom: 6px solid #C61B1A !important;
+   box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+  }
+  
+  
+  
+  .btn-tab1:hover {
+      color: #C61B1A !important;
+      background: #FFFAF1 !important;
+      border: 1px #EBEBEB solid;
+      font-weight: 700 !important;
+      box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+  }
+  
+  .btn-tab2:hover {
+      color: #C61B1A !important;
+      background: #FFFAF1 !important;
+      border: 1px #EBEBEB solid;
+      font-weight: 700 !important;
+      box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+  }
+  
+  .btn-tab3:hover {
+      color: #C61B1A !important;
+      background: #FFFAF1 !important;
+      border: 1px #EBEBEB solid;
+      font-weight: 700 !important;
+      box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+  }
+  
+  .btn-tab4:hover {
+      color: #C61B1A !important;
+      background: #FFFAF1 !important;
+      border: 1px #EBEBEB solid;
+      font-weight: 700 !important;
+      box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+  }
+  
+  .btn-tab5:hover {
+      color: #C61B1A !important;
+      background: #FFFAF1 !important;
+      border: 1px #EBEBEB solid;
+      font-weight: 700 !important;
+      box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+  }
+  
+  .btn-tab6:hover {
+      color: #C61B1A !important;
+      background: #FFFAF1 !important;
+      border: 1px #EBEBEB solid;
+      font-weight: 700 !important;
+      box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+  }
+  
+  .btn-tab7:hover {
+      color: #C61B1A !important;
+      background: #FFFAF1 !important;
+      border: 1px #EBEBEB solid;
+      font-weight: 700 !important;
+      box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.16) inset;
+  }
+  
+  .btn-tab2 img,
+  .btn-tab4 img,
+  .btn-tab6 img {
+    height: 37px;
+  }
+  
+  </style>
+  
+  
