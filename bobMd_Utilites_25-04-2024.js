@@ -1150,6 +1150,22 @@ var createPackage = {
 			return false;
 		},
 
+        hidePublishRetaileButton:function(formContext){
+
+            debugger;
+
+            var tc = formContext.formContext.getControl('truck_calculator');
+			if (tc != null && tc.getVisible())
+				tc.getVisible();
+
+            var activeStageName=Xrm.Page.data.process.getActiveStage().getName();
+            alert(activeStageName)
+        
+            if(formContext.controlDescriptor.Name.startsWith("project_variant_margin") && activeStageName==='Testing & Launch' ){
+                return false;
+            }
+        }
+
 		calculateTruck: function (formContext) {
 			let subgrid = formContext.formContext.getControl('truck_calculator');
 
@@ -2543,24 +2559,7 @@ function onChangeDC5(articleId, dc5Indicator) {
 			return false;
 		},
 		
-		enableButton1: function (formContext) {
-			debugger;
-			//var result = publishCost.calculateTruck(formContext);
-			var tc = formContext.formContext.getControl('truck_calculator');
-			if (tc != null && tc.getVisible())
-				tc.getVisible();
-
-			if(formContext.controlDescriptor.Name.startsWith("project_variant_comp_margin")){
-				return true;
-			}
-
-			if (formContext.controlDescriptor.Name.startsWith("project_variant_margin") &&
-			   !( Xrm.Page.data.process.getActiveStage().getName() === "Testing & Launch")) {
-			   return true; // Show buttons
-		   }
-			return false;
-		},
-
+		
 		calculateTruck: function (formContext) {
 			let subgrid = formContext.formContext.getControl('truck_calculator');
 
@@ -2804,3 +2803,5 @@ function onChangeDC5(articleId, dc5Indicator) {
 		Xrm.Utility.alertDialog(error.message);
 	}
 }
+
+
