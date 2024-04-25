@@ -1262,7 +1262,7 @@ function toCheckUniqueFamilyName(executionContext) {
 			}
 
 			// Escape single quotes in familyname1
-			var escapedFamilyName = escapeSingleQuotes(familyname1);
+			var escapedFamilyName = encodeURIComponent(escapeSingleQuotes(familyname1));
 			var escapedfamilygroupcode = escapeSingleQuotes(familygroupcode1);
 
 			// var fetchXml = `<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>
