@@ -13,12 +13,24 @@ var createPackage = {
 		try {
 			var selectedRows = SelectedControl.getGrid().getSelectedRows();
 
+			window.selectedRowLength = selectedRows.getLength();
 			let selectedArticles = '';
 			selectedRows.forEach(function (row) {
 				selectedArticles = selectedArticles + ",'" + row.getData().getEntity().attributes.get("cr60a_articleid").getValue() + "'";
 			});
 			selectedArticles = selectedArticles.slice(1);
 
+			if (selectedArticles == "") {
+				Xrm.Navigation.openErrorDialog({ message: "Unable to create a package with the selected components. Please refresh the page and try again..." }).then(
+					function (success) {
+						console.log(success);
+					},
+					function (error) {
+						console.log(error);
+					});
+
+				return;
+			}
 			//Xrm.Utility.showProgressIndicator("Creating Package");
 			//verify whether selected variants of type individual or not to create a package by vasudev on 26-03-24
 			// Flag to indicate if any record has bdf_articletype equal to 2
@@ -57,7 +69,7 @@ var createPackage = {
 			var assemblyrequired = false;
 			var genericGUID = firstRow._bdf_generic_value;
 			var projectGUID;
-			
+
 			if (Xrm.Page.data.entity.getEntityName() == 'bdf_generic') {
 				projectGUID = firstRow._bdf_project_value;
 			}
@@ -67,8 +79,8 @@ var createPackage = {
 
 			var dc5Indicator = false;
 			var productType = '';
-			var primaryGeneric=false;
-            for (const row of selectedRows) {
+			var primaryGeneric = false;
+			for (const row of selectedRows) {
 
 				// if (row["_cr60a_producttype_value@OData.Community.Display.V1.FormattedValue"] == "Mattresses") {
 				// 	genericGUID = row["_bdf_generic_value"];
@@ -78,13 +90,13 @@ var createPackage = {
 				// Getting all generics based on
 
 
-                var checkgenericGuid=row["_bdf_generic_value"].toLowerCase();
-				var checkprojectGUID=projectGUID.toLowerCase();
-				console.log("Project_Guid:" +checkprojectGUID)
+				var checkgenericGuid = row["_bdf_generic_value"].toLowerCase();
+				var checkprojectGUID = projectGUID.toLowerCase();
+				console.log("Project_Guid:" + checkprojectGUID)
 
-				if(checkgenericGuid!==null && checkprojectGUID!==null){
+				if (checkgenericGuid !== null && checkprojectGUID !== null) {
 
-					await Xrm.WebApi.retrieveMultipleRecords("bdf_generic", "?$select=bdf_genericid,bdf_genericname&$filter=_bdf_project_value eq "+checkprojectGUID+"").then(
+					await Xrm.WebApi.retrieveMultipleRecords("bdf_generic", "?$select=bdf_genericid,bdf_genericname&$filter=_bdf_project_value eq " + checkprojectGUID + "").then(
 						function success(results) {
 							console.log(results);
 							console.log(checkgenericGuid);
@@ -92,21 +104,27 @@ var createPackage = {
 								var result = results.entities[i];
 								// Columns
 								var bdf_genericid = result["bdf_genericid"]; // Guid
-								var bdf_genericname = result["bdf_genericname"]; // Text
+								var bdf_genericname = result["bdf_genericname"]; // Text 
 
-								if(checkgenericGuid===bdf_genericid){
-									primaryGeneric=true;
+								if (checkgenericGuid === bdf_genericid) {
+									primaryGeneric = true;
 
-									if(primaryGeneric===true){
-										genericGUID=bdf_genericid;
+									if (primaryGeneric === true) {
+
+										// Getting Selected Variant Product Type
+
+										genericGUID = bdf_genericid;
+										firtProductType = row["_cr60a_producttype_value@OData.Community.Display.V1.FormattedValue"];
+										firstSize = row["_cr60a_size_value@OData.Community.Display.V1.FormattedValue"];
+										genericName = bdf_genericname;
 										break;
 									}
 								}
 
-								
+
 							}
 						},
-						function(error) {
+						function (error) {
 							console.log(error.message);
 						}
 					);
@@ -660,7 +678,18 @@ var createPackage = {
 						function success(result) {
 							//productGUID = result.id;
 							Xrm.Utility.closeProgressIndicator();
-							Xrm.Utility.confirmDialog("Package was created successfully."); //Xrm.Utility.alertDialog("Package was created successfully.");
+							var alertStrings = { confirmButtonLabel: "Ok", text: `Packages was created successfully with ${selectedRowLength} components.`, title: "Package Creation." };
+							var alertOptions = { height: 120, width: 260 };
+							Xrm.Navigation.openAlertDialog(alertStrings, alertOptions).then(
+								function (success) {
+									console.log("Alert dialog closed");
+								},
+								function (error) {
+									console.log(error.message);
+								}
+							);
+							//Xrm.Utility.confirmDialog(`Packages was created successfully with ${selectedRowLength} componenets.`);
+							//Xrm.Utility.alertDialog("Package was created successfully.`);
 							control.refresh();
 						},
 						function (error) {
@@ -1130,7 +1159,7 @@ var createPackage = {
 			//thisRow.data.entity.attributes.get('description').controls.get(0).setDisabled(false); // Or other control methods
 		},
 
-		createRecords: function (effectiveDate, variant, freight, last, formContext) {
+		createRecords: function (effectiveDate, variant, freight, last, formContext,poimpacttype) {
 			// Create new snapshot entries
 			var articleGUID = variant.cr60a_stg_article_masterid;
 
@@ -1164,7 +1193,7 @@ var createPackage = {
 			Xrm.WebApi.createRecord("bdf_articleinforecord", input).then(
 				function success(result) {
 					// Reset draft cost
-					var input = { "bdf_draftcost": false };
+					var input = { "bdf_draftcost": false ,"bdf_poimpacttype":poimpacttype}; // Added by sathish poimpacttype 08-05-2024
 					Xrm.WebApi.updateRecord("cr60a_stg_article_master", articleGUID, input);
 
 					if (last) {
@@ -1179,8 +1208,8 @@ var createPackage = {
 			);
 		},
 
-		deleteRecords: function (effectiveDate, variant, freight, last, formContext) {
-
+		deleteRecords: function (effectiveDate, variant, freight, last, formContext,poimpacttype) {
+        // Added by Sathish poimpacttype 08-05-2024
 			var articleGUID = variant.cr60a_stg_article_masterid;
 			// Delete existing records if available
 			Xrm.WebApi.retrieveMultipleRecords("bdf_articleinforecord", "?$select=bdf_articleinforecordid&$filter=bdf_infotype eq 1 and _bdf_articleid_value eq " + articleGUID + " and bdf_effectivedate eq " + effectiveDate).then(
@@ -1191,13 +1220,13 @@ var createPackage = {
 							Xrm.WebApi.deleteRecord("bdf_articleinforecord", articleInfoGUID).then(
 								function success(result) {
 									// Create new snapshot entries
-									publishCost.createRecords(effectiveDate, variant, freight, last, formContext);
+									publishCost.createRecords(effectiveDate, variant, freight, last, formContext,poimpacttype); // Added by Sathish poimpacttype 08-05-2024
 								}
 							);
 						}
 					} else {
 						// Create new snapshot entries
-						publishCost.createRecords(effectiveDate, variant, freight, last, formContext);
+						publishCost.createRecords(effectiveDate, variant, freight, last, formContext,poimpacttype); // Added by Sathish poimpacttype 08-05-2024
 					}
 				}
 			);
@@ -1249,6 +1278,7 @@ var createPackage = {
 								Xrm.WebApi.retrieveRecord("bdf_projectcostretailsnapshot", result.savedEntityReference[0].id).then(
 									function success(data) {
 										var effectiveDate = data.bdf_effectivedate;
+										var poimpacttype=data.bdf_poimpacttype; // Added poimpacttype by Sathish 08-05-2024
 
 										// Save in variant table
 										Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$filter=bdf_draftcost eq true and _bdf_project_value eq " + parentID).then(
@@ -1258,7 +1288,7 @@ var createPackage = {
 												for (let variant of data.entities) {
 													//var articleGUID = variant.cr60a_stg_article_masterid;
 													var last = variant === data.entities.at(-1) ? true : false
-													publishCost.deleteRecords(effectiveDate, variant, freight, last, formContext);
+													publishCost.deleteRecords(effectiveDate, variant, freight, last, formContext,poimpacttype); // Added poimpacttype by Sathish 08-05-2024
 												}
 											}
 										);
@@ -1360,4 +1390,38 @@ function onChangeDC5(articleId, dc5Indicator) {
 	} catch (error) {
 		Xrm.Utility.alertDialog(error.message);
 	}
-}
+} // End
+
+
+// Added By Sathish............................... 26-04-2024
+
+function hidePublishRetailButton(primaryControl) { 
+
+	debugger;
+
+	try { 
+	var formContext = primaryControl; 
+
+	// Checking entity Name if Entity Name is Project then we are
+
+	let entityName=formContext.data.entity.getEntityName();
+	if(entityName!=null && entityName==='bdf_project'){
+
+		var activeStage = formContext.data.process.getActiveStage(); 
+	    var getactivestagename = activeStage.getName(); 
+
+		// Checking BPF Stage if Stage is Testing & Launch then we are hideing the PublishRetail Button
+		if (getactivestagename === "Testing & Launch") { 
+			return false;
+		} 
+	 
+    }
+	
+	} catch (e) { 
+
+	Xrm.Utility.alertDialog(error.message);
+	 
+	} 
+	 
+} 
+

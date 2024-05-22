@@ -7,7 +7,36 @@ function setBusinessProcessRules(executionContext) {
 
 	var formContext = executionContext.getFormContext();
 	formContext.data.process.addOnPreStageChange(addHardStop);
+
+	// Added By Sathish..........................................26-04-2024
+
+	formContext.data.process.addOnStageChange(function (executionContext){
+		debugger;
+
+		var formContext = executionContext.getFormContext();
+	 	var Direction=executionContext.getEventArgs().getDirection();
+        var getactivestagename = formContext.data.process.getActiveStage().getName(); 
+        
+		if(getactivestagename==="Testing & Launch" || Direction==="Next" ){
+		
+			Xrm.Page.getControl("project_variant_comp_margin").refreshRibbon();
+			Xrm.Page.getControl("project_variant_margin").refreshRibbon();
+
+		}
+
+		else if(Direction==="Previous" && getactivestagename=== "Ready To Buy" ){
+
+			Xrm.Page.getControl("project_variant_comp_margin").refreshRibbon();
+			Xrm.Page.getControl("project_variant_margin").refreshRibbon();
+		}
+
+   
+		
+	})
+
 }
+
+//...............................................End..................................................................	
 
 async function checkVANArticleGroup(projectID) {
 
@@ -181,7 +210,7 @@ async function updateGenericStage(executionContext) {
 //alert user if sales text is null during stage change to Ready To Buy/Testing & Launch by vasudev on 22-03-2024
 async function fieldMandatory() {
 	try {
-		 fieldMandatoryResult = { hasNullSalesText: false, errorMessage: '', alertHeight: 0, alertWidth: 0 };
+		fieldMandatoryResult = { hasNullSalesText: false, errorMessage: '', alertHeight: 0, alertWidth: 0 };
 		let articleCounts = {}; // Object to store counts for each article
 
 		await Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", `?$select=cr60a_articleid,_bdf_generic_value,cr60a_salestext&$filter=_bdf_project_value eq ${Xrm.Page.data.entity.getId().slice(1, -1)}`).then(
@@ -228,7 +257,7 @@ async function fieldMandatory() {
 			},
 			function (error) {
 				console.log(error.message);
-				
+
 			}
 		);
 
@@ -243,12 +272,12 @@ async function fieldMandatory() {
 				console.log(error.message);
 			}
 		);
-		
+
 	}
 
 	finally {
-        return fieldMandatoryResult; // Return the object regardless of whether an error occurred or not
-    }
+		return fieldMandatoryResult; // Return the object regardless of whether an error occurred or not
+	}
 }
 
 
@@ -261,16 +290,20 @@ async function addHardStop(executionContext) {
 	let projectID = formContext.data.entity.getId().slice(1, -1);
 	let error = false;
 	let direction = executionContext.getEventArgs().getDirection();
-    let factory=formContext.getAttribute("bdf_factory").getValue();
-   
+	let factory = formContext.getAttribute("bdf_factory").getValue();
 
-    // Making Factory Field Requried ..................................... Sathish - 12-04-2024
-    
-    if(formContext.data.process.getActiveStage().getName() =='Design & Costing' && direction=="Next" && factory==null){
 
-    setProjectMandatoryFields(executionContext);
-   
-}
+	// Making Factory Field Requried When stage is moving to Sample ..................................... Sathish - 12-04-2024
+
+	if (formContext.data.process.getActiveStage().getName() == 'Design & Costing' && direction == "Next" && factory == null) {
+
+		formContext.getAttribute("bdf_factory").setRequiredLevel("required");
+		//Xrm.Navigation.openAlertDialog({text:"Missing Factory Field Value. Please provide this information before proceeding."});
+		Xrm.Navigation.openAlertDialog({ text: "Missing Factory Field Value. Please provide this information before proceeding." });
+
+	}
+
+
 
 
 	if (formContext.data.process.getActiveStage().getName() == 'QC & Compliance' ||
@@ -284,13 +317,15 @@ async function addHardStop(executionContext) {
 		error = await checkVANArticleGroup(projectID);
 	}
 
-	if ((direction == 'Next' && formContext.data.process.getActiveStage().getName() == 'QC & Compliance') || formContext.data.process.getActiveStage().getName() == 'Ready To Buy' ||
-		formContext.data.process.getActiveStage().getName() == 'Testing & Launch') {
+	if (direction == 'Next' && (formContext.data.process.getActiveStage().getName() == 'QC & Compliance'|| formContext.data.process.getActiveStage().getName() == 'Ready To Buy' ||
+		formContext.data.process.getActiveStage().getName() == 'Testing & Launch')){
 
 		let errorMessage = ""; // Initialize error message
 		var fieldMandatoryResult = {};
 		fieldMandatoryResult = await fieldMandatory();
-		error = fieldMandatoryResult.hasNullSalesText;
+		let error1 = fieldMandatoryResult.hasNullSalesText;
+
+		if(error1==true || error==true) error=true
 		// Check if any sales text is null
 		if (error) {
 			errorMessage = fieldMandatoryResult.errorMessage; // Get error message
@@ -544,6 +579,7 @@ function onSave() {
 }
 
 function addSoftWarning2(executionContext) {
+
 	debugger;
 	let formContext = executionContext.getFormContext();
 	if (formContext.data.process.getActiveStage() != null) {
@@ -585,7 +621,7 @@ function addSoftWarning2(executionContext) {
 									variant.bdf_outofpackagingweight == 0 || variant.bdf_outofpackagingweight == null ||
 
 									variant.bdf_inpackagingweight == 0 || variant.bdf_inpackagingweight == null)) {
-								formContext.ui.setFormNotification("There are the following issues discovered: Missing or zero In/Out Packaging Weights", "ERROR", "ProjectWarning");
+									formContext.ui.setFormNotification("There are the following issues discovered: Missing or zero In/Out Packaging Weights", "ERROR", "ProjectWarning");
 								//formContext.data.process.addOnPreStageChange(addHardStop);
 								break;
 							}
@@ -663,6 +699,10 @@ function addSoftWarning2(executionContext) {
 						let hasDraftRetailWarning = false;
 						let hasDraftCostWarning = false;
 
+						
+
+
+
 						for (variant of data.entities) {
 							if (variant.bdf_draftretail === true) {
 								hasDraftRetailWarning = true;
@@ -676,6 +716,15 @@ function addSoftWarning2(executionContext) {
 							if (hasDraftRetailWarning && hasDraftCostWarning) {
 								break;
 							}
+						}
+
+						// Adding One More Condition to Check stage and Remove SetFormNotification...... Sathish 06-05-2024
+                        
+
+						if(formContext.data.process.getActiveStage().getName() === 'Testing & Launch'){
+							
+							hasDraftRetailWarning=false
+
 						}
 
 						// Display a form notification if needed
@@ -758,16 +807,8 @@ function setProjectMandatoryFields(executionContext) {
 	if (formContext.data.process != null && formContext.data.process.getActiveStage() != null && formContext.data.process.getActiveStage().getName() != 'Ideation') {
 		formContext.getAttribute("bdf_vendor").setRequiredLevel("required");
 		formContext.getAttribute("bdf_factory").setRequiredLevel("required");
-        Xrm.Navigation.openAlertDialog({
-            text: "Missing factory Value. Please provide this information before proceeding."
-        });
-
-        return;
 	}
 
-
-
-    
 }
 
 //code for setting setup time on creation of new article
@@ -909,21 +950,21 @@ function disableSampleOption1(executionContext) {
 										function success(result) {
 											var updatedId = result.id;
 											console.log(updatedId);
-											formContext.data.refresh();
+											//formContext.data.refresh();
 										},
 										function (error) {
-											console.log(error.message);
+											Xrm.Utility.alertDialog(error.message);
 										}
 									);
 									//}
 								}
 							},
 							function (error) {
-								console.log(error.message);
+								Xrm.Utility.alertDialog(error.message);
 							}
 						);
 						//--------------------------------
-						formContext.data.refresh(true);
+						//formContext.data.refresh(true);
 					}
 				);
 			}
@@ -961,67 +1002,70 @@ function disableSampleOption1(executionContext) {
 						var bdf_project_formatted = result["_bdf_project_value@OData.Community.Display.V1.FormattedValue"];
 						var bdf_project_lookuplogicalname = result["_bdf_project_value@Microsoft.Dynamics.CRM.lookuplogicalname"];
 
-						// Inco term from project
-						Xrm.WebApi.retrieveRecord("bdf_project", projectID, "?$expand=bdf_Vendor").then(
-							function success(data) {
-								if (data.bdf_Vendor != null) {
-									incoterm = data.bdf_Vendor['bdf_incoterm@OData.Community.Display.V1.FormattedValue'];
-									if (incoterm == 'ZFB' || incoterm == 'ZDP' || incoterm == 'ZLD')
-										//formContext.getAttribute("bdf_planneddeliverytimeindays").setValue(180);
-										dataObj["bdf_planneddeliverytimeindays"] = 180;
-									else
-										//formContext.getAttribute("bdf_planneddeliverytimeindays").setValue(90);
-										dataObj["bdf_planneddeliverytimeindays"] = 90;
+						if (projectID !== null && projectID !== undefined) {
+							// Inco term from project
+							Xrm.WebApi.retrieveRecord("bdf_project", projectID, "?$expand=bdf_Vendor").then(
+								function success(data) {
+									if (data.bdf_Vendor != null) {
+										incoterm = data.bdf_Vendor['bdf_incoterm@OData.Community.Display.V1.FormattedValue'];
+										if (incoterm == 'ZFB' || incoterm == 'ZDP' || incoterm == 'ZLD')
+											//formContext.getAttribute("bdf_planneddeliverytimeindays").setValue(180);
+											dataObj["bdf_planneddeliverytimeindays"] = 180;
+										else
+											//formContext.getAttribute("bdf_planneddeliverytimeindays").setValue(90);
+											dataObj["bdf_planneddeliverytimeindays"] = 90;
 
-									// Make the Dataverse Web API update request
-									Xrm.WebApi.updateRecord(entityLogicalName, entityId, dataObj).then(
-										function success(result) {
-											//-------------------------------- update Article Dc GR Processing Time to 6 when Article Globally Un Dropped and DC Drop code should not be Dropped by vasudev on 08-01-23
-											Xrm.WebApi.retrieveMultipleRecords("bdf_articledc", `?$select=bdf_dropcode,bdf_dc&$filter=_bdf_article_value eq ${entityId}`).then(
-												async function success(results) {
-													console.log(results);
-													for (var i = 0; i < results.entities.length; i++) {
-														var result = results.entities[i];
-														// Columns
-														var bdf_articledcid = result["bdf_articledcid"]; // Guid
-														var bdf_dropcodeVal = result["bdf_dropcode"]; // Choice
-														var dccodeValue = results.entities[i].bdf_dc;
-														var record = {};
-														record.bdf_grprocessingtime = 6; // Whole Number
+										// Make the Dataverse Web API update request
+										Xrm.WebApi.updateRecord(entityLogicalName, entityId, dataObj).then(
+											function success(result) {
+												//-------------------------------- update Article Dc GR Processing Time to 6 when Article Globally Un Dropped and DC Drop code should not be Dropped by vasudev on 08-01-23
+												Xrm.WebApi.retrieveMultipleRecords("bdf_articledc", `?$select=bdf_dropcode,bdf_dc&$filter=_bdf_article_value eq ${entityId}`).then(
+													async function success(results) {
+														console.log(results);
+														for (var i = 0; i < results.entities.length; i++) {
+															var result = results.entities[i];
+															// Columns
+															var bdf_articledcid = result["bdf_articledcid"]; // Guid
+															var bdf_dropcodeVal = result["bdf_dropcode"]; // Choice
+															var dccodeValue = results.entities[i].bdf_dc;
+															var record = {};
+															record.bdf_grprocessingtime = 6; // Whole Number
 
 
-														// Check if dccode is not equal to 3220 before updating
-														if (bdf_dropcodeVal != 1) {
-															await Xrm.WebApi.updateRecord("bdf_articledc", bdf_articledcid, record).then(
-																function success(result) {
-																	var updatedId = result.id;
-																	console.log(updatedId);
-																	formContext.data.refresh();
-																},
-																function (error) {
-																	console.log(error.message);
-																}
-															);
+															// Check if dccode is not equal to 3220 before updating
+															if (bdf_dropcodeVal != 1) {
+																await Xrm.WebApi.updateRecord("bdf_articledc", bdf_articledcid, record).then(
+																	function success(result) {
+																		var updatedId = result.id;
+																		console.log(updatedId);
+																		//formContext.data.refresh();
+																	},
+																	function (error) {
+																		Xrm.Utility.alertDialog(error.message);
+																	}
+																);
+															}
 														}
+													},
+													function (error) {
+														Xrm.Utility.alertDialog(error.message);
 													}
-												},
-												function (error) {
-													console.log(error.message);
-												}
-											);
-											//--------------------------------
-											// Optionally, refresh the form to see the updated data
-											//formContext.data.entity.save();
-											formContext.data.refresh(true);
-										}
-									);
+												);
+												//--------------------------------
+												// Optionally, refresh the form to see the updated data
+												//formContext.data.entity.save();
+												formContext.data.refresh(true);
+											}
+										);
 
+									}
+								},
+								function (error) {
+									Xrm.Utility.alertDialog(error.message);
 								}
-							},
-							function (error) {
-								Xrm.Utility.alertDialog(error.message);
-							}
-						);
+							);
+
+						}
 					}
 				);
 
@@ -1260,8 +1304,8 @@ function toCheckUniqueFamilyName(executionContext) {
 			}
 
 			// Escape single quotes in familyname1
-			var escapedFamilyName = escapeSingleQuotes(familyname1);
-			var escapedfamilygroupcode = escapeSingleQuotes(familygroupcode1);
+			var escapedFamilyName = encodeURIComponent(escapeSingleQuotes(familyname1)); // ..... Modified by Sathish - 22-04-2024
+			var escapedfamilygroupcode = encodeURIComponent(escapeSingleQuotes(familygroupcode1)); // ..... Modified by Sathish - 22-04-2024
 
 			// var fetchXml = `<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>
 			// 				<entity name='bdf_familygroup'>
@@ -1732,4 +1776,11 @@ function checkUniqueFamilyName(executionContext) {
 	} catch (error) {
 		Xrm.Utility.alertDialog(error.message);
 	}
-}
+} 
+
+
+
+
+
+
+
