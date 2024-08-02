@@ -3,11 +3,15 @@ function displayHeroImage(executionContext)
 	debugger;
 	let formContext = executionContext.getFormContext();
 	let gridContext = formContext.getControl("sharepoint_doc"); // get the grid context
+	var grid=formContext.getControl("BusinessAccounts");
     console.log("gridContext: " +gridContext);
 
+
+//
 	gridContext.addOnLoad(heroImage);
+	grid.addOnLoad(updateSkuCount);
  
-	 async function heroImage(executionContext)
+	function heroImage(executionContext)
 	{
 		debugger;
 		console.log("Subgrid OnLoad event occurred...");
@@ -20,15 +24,9 @@ function displayHeroImage(executionContext)
 		// Check if top seller article is provided.
 		let imageURL;
 		
-		var entityId = Xrm.Page.data.entity.getId(); // Get the entity ID
-		var entityGuid = entityId.slice(1, -1); // Remove curly braces from GUID
-
-		//Calling Api to get Top Seller Id
-
-        var result = await Xrm.WebApi.retrieveRecord("bdf_project", ""+entityGuid+"", "?$select=bdf_topsellerarticleid,bdf_url");
 		
-		if (result.bdf_topsellerarticleid != null){
-			imageURL = result.bdf_url;
+		if (formContext.getAttribute("bdf_topsellerarticleid").getValue() != null){
+			imageURL = formContext.getAttribute("bdf_url").getValue();
 		}
 
 		let library = formContext.data.getEntity().getEntityName();
@@ -39,7 +37,8 @@ function displayHeroImage(executionContext)
 			{
 				if (library == "bdf_project") formContext.ui.tabs.get("Project").sections.get("section_hero").setVisible(false);
 				else formContext.ui.tabs.get("Generic").sections.get("section_hero").setVisible(false);
-				imageURL=null;
+				return;
+			}
 		}
 		else
 		{
@@ -51,7 +50,8 @@ function displayHeroImage(executionContext)
 				{
 					if (library == "bdf_project") formContext.ui.tabs.get("Project").sections.get("section_hero").setVisible(false);
 					else formContext.ui.tabs.get("Generic").sections.get("section_hero").setVisible(false);
-				    imageURL=null;
+					return;
+				}
 			}
 			else if (hero == "Yes")
 			{
@@ -62,7 +62,7 @@ function displayHeroImage(executionContext)
 			}
 		}
 
-			
+
 		if (library == "bdf_project") formContext.ui.tabs.get("Project").sections.get("section_hero").setVisible(true);
 		else formContext.ui.tabs.get("Generic").sections.get("section_hero").setVisible(true);
 		// find web resource
@@ -102,5 +102,32 @@ function displayHeroImage(executionContext)
 	}
 
 
-}
+function updateSkuCount(executionContext){
+	debugger;
+
+	var formContext=executionContext.getFormContext();
+
+	// Getting Subgrid Records and Updating Field Values
+
+	var grid=formContext.getControl("BusinessAccounts");
+
+	var totalRecordCount=grid.getGrid().getTotalRecordCount();
+
+	// Calling WebApi.Update to Update Project Sku Count Value
+
+	var entityGuid = formContext.data.entity.getId().slice(1, -1);
+
+    var record = {};
+    record.bdf_skuscount = totalRecordCount; // Text
+
+	Xrm.WebApi.updateRecord("bdf_project", ""+entityGuid+"", record).then(
+	function success(result) {
+	var updatedId = result.id;
+	console.log(updatedId);
+	},
+	function(error) {
+	console.log(error.message);
+	}
+	);
+
 }
