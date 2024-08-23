@@ -1,13 +1,37 @@
-function updateVariantData(executionContext) {
+async function updateVariantData(executionContext) {
 	debugger;
 
 	var formContext = executionContext.getFormContext();
 	updateSizeName(formContext);
 	updateArticleID(formContext);
 
- 
+
+	let formType = formContext.ui.getFormType();
+	let bdf_globaldropstatus1; // Declare the variable bdf_globaldropstatus1
+
+	if (formType !== 1) {
+
+		let variantGuid = formContext.data.entity.getId().slice(1, -1);
+		// Retrieving global drop status from parent  .............. Added by Sathish .. Date:18-04-2024
+		await Xrm.WebApi.retrieveRecord("cr60a_stg_article_master", "" + variantGuid + "", "?$select=bdf_globaldropstatus").then(
+			function success(result) {
+				console.log(result);
+				var bdf_globaldropstatus = result["bdf_globaldropstatus"];
+				bdf_globaldropstatus1 = bdf_globaldropstatus;
+			},
+			function (error) {
+				Xrm.Navigation.openAlertDialog(error.message)
+			}
+		);
+
+	} else if (formType === 1) {
+		bdf_globaldropstatus1 = formContext.getAttribute("bdf_globaldropstatus").getValue();
+	}
+
+	//formContext.getAttribute("bdf_globaldropstatus").getValue()
+
 	//--------------------------------------------------------------------------------- Set the Global Drop Status and Global Drop Date during the creation of a new variant when the project is in the Sample Stage, by Vasudev, 08-12-23
-	if (formContext.getAttribute("bdf_project") && formContext.getAttribute("bdf_project").getValue() != null && formContext.getAttribute("bdf_globaldropstatus").getValue() != 1) {
+	if (formContext.getAttribute("bdf_project") && formContext.getAttribute("bdf_project").getValue() != null && bdf_globaldropstatus1 != 1) {
 
 		var projectID = formContext.getAttribute("bdf_project").getValue()[0].id.slice(1, -1);
 
@@ -22,7 +46,7 @@ function updateVariantData(executionContext) {
 					var activestageid_formatted = result["_activestageid_value@OData.Community.Display.V1.FormattedValue"]; //Active Stage name
 					var activestageid_lookuplogicalname = result["_activestageid_value@Microsoft.Dynamics.CRM.lookuplogicalname"];
 
-					if (activestageid_formatted !== null && activestageid_formatted !== undefined && activestageid_formatted == "Sample") {
+					if (activestageid_formatted !== null && activestageid_formatted !== undefined && activestageid_formatted == "Sample" && bdf_globaldropstatus1 == null) {
 						formContext.data.entity.addOnPostSave(function () {
 							debugger;
 							if (formContext.getAttribute("bdf_globaldropstatus").getValue() != 1) {
@@ -39,7 +63,7 @@ function updateVariantData(executionContext) {
 										console.log(updatedId);
 									},
 									function (error) {
-										console.log(error.message);
+										Xrm.Navigation.openAlertDialog(error.message)
 									}
 								);
 
@@ -49,7 +73,7 @@ function updateVariantData(executionContext) {
 				}
 			},
 			function (error) {
-				console.log(error.message);
+				Xrm.Navigation.openAlertDialog(error.message);
 			}
 		);
 	}
@@ -99,8 +123,23 @@ function updateVariantData(executionContext) {
 	if (formContext.getAttribute("bdf_inpackaginglength") &&
 		formContext.getAttribute("bdf_inpackagingwidth") &&
 		formContext.getAttribute("bdf_inpackagingheight")) {
-		let volume = formContext.getAttribute("bdf_inpackaginglength").getValue() * formContext.getAttribute("bdf_inpackagingwidth").getValue() * formContext.getAttribute("bdf_inpackagingheight").getValue() / 1728;
-		formContext.getAttribute("bdf_inpackagingvolume").setValue(volume);
+		//formContext.getAttribute("bdf_inpackagingvolume").setValue(volume);
+		formContext.data.entity.addOnPostSave(async function () {
+			let volume = formContext.getAttribute("bdf_inpackaginglength").getValue() * formContext.getAttribute("bdf_inpackagingwidth").getValue() * formContext.getAttribute("bdf_inpackagingheight").getValue() / 1728;
+			var record = {};
+			record.bdf_inpackagingvolume = volume; // Decimal
+
+			await Xrm.WebApi.updateRecord("cr60a_stg_article_master", Xrm.Page.data.entity.getId().slice(1, -1), record).then(
+				function success(result) {
+					//formContext.data.refresh();
+				},
+				function (error) {
+					Xrm.Utility.alertDialog(error.message);
+				}
+			);
+
+		});
+
 	}
 
 	// Set General Item Category Group
@@ -119,7 +158,7 @@ function updateVariantData(executionContext) {
 		var goofProof = formContext.getAttribute("bdf_goofproofindicator").getValue();
 		if (formContext.ui.getFormType() == 1 || goofProof == null) {
 			var minorCode = formContext.getAttribute("bdf_minorcodenameproject").getValue();
-			if (minorCode == 'MATTRESSES & FOUNDATIONS' || minorCode == 'MATTRESS PADS' || minorCode == 'TABLETOP ACCESSORIES' || minorCode == 'PET FURNITURE' || minorCode == 'TREES' || minorCode == 'FLORAL' || minorCode == 'OUTDOOR OTHER')
+			if (minorCode == 'MATTRESSES & FOUNDATIONS' || minorCode == 'MATTRESS PADS' || minorCode == 'TABLETOP ACCESSORIES' || minorCode == 'PET FURNITURE' || minorCode == 'TREES' || minorCode == 'FLORAL' || minorCode == 'OUTDOOR OTHER' || minorCode == 'MATTRESSES AND FOUNDATIONS OUTLET')
 				formContext.getAttribute("bdf_goofproofindicator").setValue(false);
 			else
 				formContext.getAttribute("bdf_goofproofindicator").setValue(true);
@@ -586,9 +625,9 @@ function preventNewCreation(executionContext) {
 	var formContext = executionContext.getFormContext();
 	if (formContext.ui.getFormType() == 1) {
 		//executionContext.getEventArgs().preventDefault();
-		Xrm.Navigation.openErrorDialog({ message: "Please do not create a new variant on this page. Please switch to Variant Create/Update form to create a new variant. Your data will not be saved here."});
+		Xrm.Navigation.openErrorDialog({ message: "Please do not create a new variant on this page. Please switch to Variant Create/Update form to create a new variant. Your data will not be saved here." });
 		// Xrm.Utility.alertDialog('Please switch to Variant Create/Update form to create new variants.');
-	}	
+	}
 }
 
 function preventNewCreationOnSave(executionContext) {
@@ -597,7 +636,87 @@ function preventNewCreationOnSave(executionContext) {
 	var formContext = executionContext.getFormContext();
 	if (formContext.ui.getFormType() == 1) {
 		executionContext.getEventArgs().preventDefault();
-		Xrm.Navigation.openErrorDialog({ message: "Please do not create a new variant on this page. Please switch to Variant Create/Update form to create a new variant. Your data will not be saved here."});
+		Xrm.Navigation.openErrorDialog({ message: "Please do not create a new variant on this page. Please switch to Variant Create/Update form to create a new variant. Your data will not be saved here." });
 		// Xrm.Utility.alertDialog('Please switch to Variant Create/Update form to create new variants.');
-	}	
+	}
 }
+
+function preventOnlineExclusiveIndicator(executionContext) {
+	debugger;
+
+	try {
+		//executionContext.getEventArgs().preventDefault();
+		var formContext = executionContext.getFormContext();
+		var exclusiveIndicatorOnOff = formContext.getAttribute("bdf_onlineexclusiveindicator").getValue();
+		var onlineIndicatorOnOff = formContext.getAttribute("bdf_onlineindicator").getValue();
+		if (exclusiveIndicatorOnOff && onlineIndicatorOnOff) {
+			formContext.getAttribute("bdf_onlineexclusiveindicator").setValue(false);
+			formContext.data.refresh(true);
+			Xrm.Navigation.openErrorDialog({ message: "Article cannot be an online exclusive item and have online indicator on" });
+		}
+	} catch (error) {
+		Xrm.Navigation.openErrorDialog({ message: error.message });
+	}
+}
+
+// function preventSplDelFeeIndicator(executionContext) {
+// 	debugger;
+
+// 	try {
+// 		//executionContext.getEventArgs().preventDefault();
+// 		var formContext = executionContext.getFormContext();
+// 		var specialDeliveryFeeIndicator = formContext.getAttribute("bdf_specialdeliveryfeeindicator").getValue();
+// 		var articleType = formContext.getAttribute("bdf_articletype").getValue();
+// 		if (specialDeliveryFeeIndicator && (articleType == 2 || articleType == 3)) {
+// 			formContext.getAttribute("bdf_specialdeliveryfeeindicator").setValue(false);
+// 			formContext.data.refresh(true);
+// 			Xrm.Navigation.openErrorDialog({ message: "Article of General Item Category Group equal to LUMF cannot turn Special Delivery Fee indicator to Yes" });
+// 		}
+// 	} catch (error) {
+// 		Xrm.Navigation.openErrorDialog({ message: error.message });
+// 	}
+// }
+
+async function preventSplDelFeeIndicator(executionContext) {
+    debugger;
+
+    try {
+        var formContext = executionContext.getFormContext();
+        var specialDeliveryFeeIndicator = formContext.getAttribute("bdf_specialdeliveryfeeindicator").getValue();
+        var articleType = formContext.getAttribute("bdf_articletype").getValue();
+
+        let packageId = formContext.data.entity.getId().slice(1, -1);
+        if (specialDeliveryFeeIndicator && (articleType == 2 || articleType == 3)) {
+            try {
+                const results = await Xrm.WebApi.retrieveMultipleRecords("bdf_articlebillofmaterial", "?$filter=_bdf_packagearticle_value eq " + packageId);
+                console.log(results);
+
+                let found = false;               
+                for (const entity of results.entities) {
+                    var componentArticleId = entity._bdf_componentarticle_value;
+                    const componentResult = await Xrm.WebApi.retrieveRecord("cr60a_stg_article_master", componentArticleId, "?$select=bdf_specialdeliveryfeeindicator");
+                    var componentSpecialDeliveryFeeIndicator = componentResult.bdf_specialdeliveryfeeindicator;
+                    console.log("Component Special Delivery Fee Indicator: " + componentSpecialDeliveryFeeIndicator);
+
+                    if (componentSpecialDeliveryFeeIndicator === true) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    formContext.getAttribute("bdf_specialdeliveryfeeindicator").setValue(false);
+                    formContext.data.refresh(true);
+                    await Xrm.Navigation.openErrorDialog({ message: "None of the Components have Special Delivery Fee Indicator turned to Yes" });
+                }
+
+            } catch (error) {
+                await Xrm.Navigation.openErrorDialog({ message: error.message });
+            }
+        }
+
+    } catch (error) {
+        await Xrm.Navigation.openErrorDialog({ message: error.message });
+    }
+}
+
