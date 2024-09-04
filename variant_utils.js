@@ -142,8 +142,10 @@ async function updateVariantData(executionContext) {
 
 	}
 
-	// Set General Item Category Group
-	var articleType;
+	// Set GeneralItemCategory Group modified by sathish 8/23/2024
+
+	/*var articleType;
+
 	if (formContext.getAttribute("bdf_articletype"))
 		articleType = formContext.getAttribute("bdf_articletype").getValue();
 	if (articleType && formContext.getAttribute("cr60a_generalitemcategorygroup") != null) {
@@ -152,6 +154,11 @@ async function updateVariantData(executionContext) {
 		else
 			formContext.getAttribute("cr60a_generalitemcategorygroup").setValue("LUMF");
 	}
+			
+	*/
+
+
+
 
 	// Set Goof Proof
 	if (formContext.getAttribute("bdf_goofproofindicator") != null) {
@@ -550,6 +557,8 @@ function onDropcodeChange(executionContext) {
 	}
 }
 
+
+
 function changeGeneralItemCategory(executionContext) {
 	debugger;
 	var formContext = executionContext.getFormContext();
@@ -720,3 +729,22 @@ async function preventSplDelFeeIndicator(executionContext) {
     }
 }
 
+//End
+
+	// Set GeneralItemCategory Group modified by sathish 8/23/2024
+
+	
+	function onChangeGeneralItemCategory(executionContext){
+
+		debugger;
+		var formContext=executionContext.getFormContext();
+
+		if (formContext.getAttribute("bdf_articletype"))
+			var articleType = formContext.getAttribute("bdf_articletype").getValue();
+		if (articleType && formContext.getAttribute("cr60a_generalitemcategorygroup") != null) {
+			if (articleType == 1)
+				formContext.getAttribute("cr60a_generalitemcategorygroup").setValue("NORM");
+			else
+				formContext.getAttribute("cr60a_generalitemcategorygroup").setValue("LUMF");
+		}
+	}

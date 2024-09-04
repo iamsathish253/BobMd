@@ -53,7 +53,7 @@ function updateGlobalDropStatus(executionContext) {
 					}
 				}
 			);
-		} else {
+		} else if (genericStage != null) {
 			var input = { "bdf_globaldropstatus": null, "bdf_globaldropdate": null };
 			Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$filter=bdf_globaldropstatus eq 3 and bdf_Generic/bdf_genericid eq " + genericId).then(
 				function success(data) {
@@ -79,20 +79,39 @@ function setGenericBusinessProcessRules(executionContext) {
 async function checkVANArticleGroup1(genericID) {
 
 	var error = false;
-	var data = await Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$filter=bdf_Generic/bdf_genericid eq " + genericID + " and cr60a_vendorarticlenumber eq null and bdf_articletype eq 1");
+	var data = await Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$filter=bdf_Generic/bdf_genericid eq " + genericID + " and cr60a_vendorarticlenumber eq null and bdf_articletype eq 1 and bdf_globaldropstatus ne 1 ");
 	if (data.entities.length > 0) {
+		// Map the article IDs of the failing records into an array
+		var failingArticleId = data.entities.map(variant => variant["cr60a_articleid"]);
+
+		// Join the IDs into a single string
+		var failingArticleIdsString = failingArticleId.join(", ");
+
+		// Display the error message with the failing article IDs
 		Xrm.Navigation.openAlertDialog({
-			text: "Please fill in Vendor Article Number for all related records before proceeding."
+			text: "Please fill in Vendor Article Number for the following article(s) before proceeding: " + failingArticleIdsString
 		});
+
 		error = true;
 	}
-
-	var data = await Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$filter=bdf_Generic/bdf_genericid eq " + genericID + " and _bdf_articlegroup_value eq null");
+	
+	var data = await Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$filter=bdf_Generic/bdf_genericid eq " + genericID + " and _bdf_articlegroup_value eq null and bdf_globaldropstatus ne 1");
 	if (data.entities.length > 0) {
-		Xrm.Navigation.openAlertDialog({
-			text: "Please fill in Article Group for all related records before proceeding."
-		});
-		error = true;
+		for (let index = 0; index < data.entities.length; index++) {
+			let variant = data.entities[index];
+			if (variant.bdf_Generic.bdf_genericstage != null) {
+				error = true;
+				ArticleGroupError = true;
+				failingArticleIds.push(variant["cr60a_articleid"]); // Collect the failing article IDs
+			}
+		}
+
+		if (ArticleGroupError) {
+			let failingArticleIdsString1 = failingArticleIds.join(", "); // Join the IDs into a single string
+			Xrm.Navigation.openAlertDialog({
+				text: "Please fill in Article Group for the following article(s) before proceeding: " + failingArticleIdsString1
+			});
+		}
 	}
 	return error;
 }
@@ -100,7 +119,7 @@ async function checkVANArticleGroup1(genericID) {
 async function checkVariant1(genericID, formContext) {
 
 	var error = false;
-	var data = await Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$orderby=bdf_outofpackagingvolume&$expand=bdf_Project($select=bdf_minorcodelookup),cr60a_ProductType&$filter=cr60a_cmstatus eq null and bdf_Generic/bdf_genericid eq " + genericID);
+	var data = await Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$orderby=bdf_outofpackagingvolume&$expand=bdf_Project($select=bdf_minorcodelookup),cr60a_ProductType&$filter=cr60a_cmstatus eq null and bdf_globaldropstatus ne 1 and bdf_Generic/bdf_genericid eq " + genericID);
 	for (variant of data.entities) {
 		if ((variant.cr60a_generalitemcategorygroup == 'NORM') && // variant.bdf_Project.bdf_minorcodelookup == '2010' || 
 			(variant.bdf_outofpackagingvolume == 0 || variant.bdf_outofpackagingvolume == null ||
@@ -114,7 +133,7 @@ async function checkVariant1(genericID, formContext) {
 				variant.bdf_inpackagingweight == 0 || variant.bdf_inpackagingweight == null ||
 				variant.bdf_inpackagingwidth == 0 || variant.bdf_inpackagingwidth == null)) {
 			Xrm.Navigation.openAlertDialog({
-				text: "Missing or zero Volume / Dimensions. Please provide this information before proceeding."
+				text: `Missing or zero Volume / Dimensions. Please provide this information before proceeding for the Article (${variant["cr60a_articleid"]}), `
 			});
 
 			error = true;
@@ -128,7 +147,7 @@ async function checkVariant1(genericID, formContext) {
 		if (variant.bdf_retailprice == 0 || variant.bdf_retailprice == null) {
 
 			Xrm.Navigation.openAlertDialog({
-				text: "Missing or zero Retail. Please provide this information before proceeding."
+				text: `Missing or zero Retail. Please provide this information before proceeding for the Article (${variant["cr60a_articleid"]}), `
 			});
 
 			error = true;
@@ -145,10 +164,10 @@ async function checkVariant1(genericID, formContext) {
 
 				fieldName = item.replace("cr60a_pt", "_cr60a_") + "_value";
 				fieldName2 = item.replace("cr60a_pt", "cr60a_");
-				if ((variant[fieldName] != undefined && variant[fieldName] == null) ||
-					(variant[fieldName2] != undefined && variant[fieldName2] == null)) {
+				if ((variant[fieldName] !== undefined && variant[fieldName] === null) ||
+					(variant[fieldName2] !== undefined && variant[fieldName2] === null)) {
 					Xrm.Navigation.openAlertDialog({
-						text: "Missing Product Type related attributes (" + fieldName + "). Please provide this information before proceeding."
+						text: `Missing Product Type related attributes (${variant["cr60a_articleid"]})`
 					});
 					missingData = true;
 					error = true;
@@ -168,6 +187,7 @@ var previousDropdownValue;
 
 // Function to capture the initial value of the dropdown field
 function captureInitialDropdownValue(executionContext) {
+    debugger;
 	var formContext = executionContext.getFormContext();
 	var dropdownField = formContext.getAttribute("bdf_genericstage");
 
@@ -194,7 +214,7 @@ async function fieldMandatory1() {
 		fieldMandatoryResult = { hasNullSalesText: false, errorMessage: '', alertHeight: 0, alertWidth: 0 };
 		let articleCounts = {}; // Object to store counts for each article
 
-		await Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", `?$select=cr60a_articleid,_bdf_generic_value,cr60a_salestext&$filter=_bdf_generic_value eq ${Xrm.Page.data.entity.getId().slice(1, -1)}`).then(
+		await Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", `?$select=cr60a_articleid,_bdf_generic_value,cr60a_salestext&$filter=_bdf_generic_value eq ${Xrm.Page.data.entity.getId().slice(1, -1)} and bdf_globaldropstatus ne 1`).then(
 			function success(results) {
 				console.log(results);
 				for (let i = 0; i < results.entities.length; i++) {
@@ -225,11 +245,11 @@ async function fieldMandatory1() {
 					fieldMandatoryResult.alertWidth = 360;
 
 					// After looping through all records
-					// errorMessage = "The following articles have missing sales text value:\n";
-					errorMessage = "Articles have missing sales text value. Please fill them before proceeding...\n";
-					// for (let articleId in articleCounts) {
-					// 	errorMessage += `${articleId}\n`;
-					// }
+					 errorMessage = "The following articles have missing sales text value:\n";
+					//errorMessage = "Articles have missing sales text value. Please fill them before proceeding...\n";
+					for (let articleId in articleCounts) {
+						errorMessage += `${articleId}\n`;
+					}
 					fieldMandatoryResult.errorMessage = errorMessage;
 
 				}
@@ -271,36 +291,44 @@ async function addHardStop1(executionContext) {
 	let error = false;
 
 
-    // preventing generic satge of costing and designing when Project Table Factory is Empty 
+	// When the factory is empty, it prevents the generic stage of costing and designing..... Sathish-15-04-2024
 
-   if(genericStage=='2'){
-    await Xrm.WebApi.retrieveRecord("bdf_generic", ""+genericID+"", "?$expand=bdf_Project($select=_bdf_factory_value)").then(
-        function success(result) {
-            console.log(result);
-            // Columns
-            var bdf_genericid = result["bdf_genericid"]; // Guid
-            
-            // Many To One Relationships
-            if (result.hasOwnProperty("bdf_Project") && result["bdf_Project"] !== null) {
-                var bdf_Project_bdf_factory = result["bdf_Project"]["_bdf_factory_value"]; // Lookup
-               // var bdf_Project_bdf_factory_formatted = result["bdf_Project"]["_bdf_factory_value@OData.Community.Display.V1.FormattedValue"];
-                //var bdf_Project_bdf_factory_lookuplogicalname = result["bdf_Project"]["_bdf_factory_value@Microsoft.Dynamics.CRM.lookuplogicalname"];
+	if (genericID != null || genericID != undefined) {
 
-                if(bdf_Project_bdf_factory!==undefined || bdf_Project_bdf_factory!==null){
-                    Xrm.Navigation.openAlertDialog({text:"Missing Factory Field Value in Related Project. Please provide this information before proceeding."});
 
-                }
-            }
-        },
-        function(error) {
-            console.log(error.message);
-        }
-    );
-    
-   }
+		if (genericStage == '4') {
 
-    //...........................................................End............................................
-      
+			await Xrm.WebApi.retrieveRecord("bdf_generic", "" + genericID + "", "?$expand=bdf_Project($select=_bdf_factory_value)").then(
+				function success(result) {
+					console.log(result);
+					// Columns
+					var bdf_genericid = result["bdf_genericid"]; // Guid
+
+					// Many To One Relationships
+					if (result.hasOwnProperty("bdf_Project") && result["bdf_Project"] !== null) {
+						var bdf_Project_bdf_factory = result["bdf_Project"]["_bdf_factory_value"]; // Lookup
+						// var bdf_Project_bdf_factory_formatted = result["bdf_Project"]["_bdf_factory_value@OData.Community.Display.V1.FormattedValue"];
+						//var bdf_Project_bdf_factory_lookuplogicalname = result["bdf_Project"]["_bdf_factory_value@Microsoft.Dynamics.CRM.lookuplogicalname"];
+
+						if (bdf_Project_bdf_factory == undefined || bdf_Project_bdf_factory == null) {
+							Xrm.Navigation.openAlertDialog({ text: "Please provide the missing factory field value in the related project before proceeding." });
+							handleDropdownChange(executionContext);
+
+						}
+					}
+				},
+				function (error) {
+					//console.log(error.message);
+
+					Xrm.Navigation.openAlertDialog(error.message);
+				}
+			);
+
+		}
+
+	}
+	//...........................................................End............................................
+
 
 
 
@@ -349,7 +377,7 @@ async function addHardStop1(executionContext) {
 	}
 
 
-	if (genericStage == '6') {
+	if (genericStage == '6' || genericStage == '7') {
 		// Retrieve records from "cr60a_stg_article_master" entity
 		Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", `?$select=_cr60a_productsubtype_value,_cr60a_producttype_value,bdf_setuptimeminutes,_cr60a_size_value&$filter=(_bdf_generic_value eq ${genericID} and bdf_setuptimeminutes eq null)`).then(
 			function success(articleMasterResults) {
@@ -399,7 +427,7 @@ async function addHardStop1(executionContext) {
 			}
 		);
 
-        
+
 
 		// Update Variant Entity function
 		function updateVariantEntity(articleMasterResult, highestSetupTime) {
@@ -424,7 +452,7 @@ function addSoftWarning3(executionContext) {
 
 		if (genericStage != '1') {
 			let genericID = formContext.data.entity.getId().slice(1, -1);
-			Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$orderby=bdf_outofpackagingvolume&$expand=bdf_Project($select=bdf_minorcodelookup),cr60a_ProductType&$filter=cr60a_cmstatus eq null and bdf_Generic/bdf_genericid eq " + genericID).then(
+			Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$orderby=bdf_outofpackagingvolume&$expand=bdf_Project($select=bdf_minorcodelookup),cr60a_ProductType&$filter=cr60a_cmstatus eq null and bdf_globaldropstatus ne 1 and bdf_Generic/bdf_genericid eq " + genericID).then(
 				function success(data) {
 					let message = '';
 					let error = false;
@@ -442,7 +470,7 @@ function addSoftWarning3(executionContext) {
 									variant.bdf_inpackaginglength == 0 || variant.bdf_inpackaginglength == null ||
 									variant.bdf_inpackagingweight == 0 || variant.bdf_inpackagingweight == null ||  //previously this was commented out
 									variant.bdf_inpackagingwidth == 0 || variant.bdf_inpackagingwidth == null)) {
-								message = message + "Missing or zero Volume / Dimensions, ";
+								message = message + `Missing or zero Volume / Dimensions for the Article (${variant["cr60a_articleid"]}), `;
 								error = true;
 								//formContext.data.process.addOnPreStageChange(addHardStop);
 								break;
@@ -470,7 +498,7 @@ function addSoftWarning3(executionContext) {
 					// Retail Check	
 					for (variant of data.entities) {
 						if ((variant.bdf_retailprice == 0 || variant.bdf_retailprice == null) && (genericStage === '5' || genericStage === '6' || genericStage === '7')) {
-							message = message + "Missing or zero Retail, ";
+							message = message + `Missing or zero Retail for the Article (${variant["cr60a_articleid"]}), `;
 							error = true;
 							break;
 						}
@@ -479,7 +507,7 @@ function addSoftWarning3(executionContext) {
 					// Cost Check	
 					for (variant of data.entities) {
 						if (variant.cr60a_generalitemcategorygroup == 'NORM' && (variant.bdf_cost == 0 || variant.bdf_cost == null)) {
-							message = message + "Missing or zero Cost, ";
+							message = message + `Missing or zero Cost for the Article (${variant["cr60a_articleid"]}), `;
 							break;
 						}
 					}
@@ -495,9 +523,9 @@ function addSoftWarning3(executionContext) {
 
 								fieldName = item.replace("cr60a_pt", "_cr60a_") + "_value";
 								fieldName2 = item.replace("cr60a_pt", "cr60a_");
-								if ((variant[fieldName] != undefined && variant[fieldName] == null) ||
-									(variant[fieldName2] != undefined && variant[fieldName2] == null)) {
-									message = message + "Missing Product Type related attributes (" + fieldName + "), ";
+								if ((variant[fieldName] !== undefined && variant[fieldName] === null ||
+									variant[fieldName2] !== undefined && variant[fieldName2] === null) && (genericStage == '6' || genericStage == '7')) {
+									message = message + `Missing Product Type related attributes (${variant["cr60a_articleid"]})`;
 									missingData = true;
 									break;
 								}
@@ -510,13 +538,13 @@ function addSoftWarning3(executionContext) {
 						if (variant.cr60a_generalitemcategorygroup == 'NORM' && typeof (incoterm) != 'undefined' && incoterm && (incoterm == 'ZDP' || incoterm == 'ZFB'))
 							if (variant._bdf_commoditycode_value == null &&
 								(genericStage === '6' || genericStage === '7')) {
-								message = message + "Missing Commodity / HTS Code, ";
+								message = message + `Missing Commodity / HTS Code for the Article (${variant["cr60a_articleid"]}), `;
 								break;
 							}
 					}
 
 					if (message.length > 0) {
-						message = message.slice(0, -2) + ".";
+						//message = message.slice(0, -2) + ".";
 						Xrm.Navigation.openAlertDialog("There are the following issues discovered: " + message);
 						if (!error) {
 							//formContext.data.process.removeOnPreStageChange(addHardStop);
