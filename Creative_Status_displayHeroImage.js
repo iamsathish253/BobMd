@@ -1,15 +1,15 @@
-function displayHeroImage(executionContext)
+function creativeStatusDisplayHeroImage(executionContext)
 {
 	debugger;
 	let formContext = executionContext.getFormContext();
 	let gridContext = formContext.getControl("sharepoint_doc"); // get the grid context
-	var grid=formContext.getControl("BusinessAccounts");
+	//var grid=formContext.getControl("SKUS");
     console.log("gridContext: " +gridContext);
 
 
 //
 	gridContext.addOnLoad(heroImage);
-	grid.addOnLoad(updateSkuCount);
+	//grid.addOnLoad(updateSkuCount);
  
 	function heroImage(executionContext)
 	{
@@ -102,32 +102,32 @@ function displayHeroImage(executionContext)
 	}
 
 
-function updateSkuCount(executionContext){
-	debugger;
+//  async function updateSkuCount(executionContext){
+// 	debugger;
 
-	var formContext=executionContext.getFormContext();
+// 	var formContext=executionContext.getFormContext();
 
-	// Getting Subgrid Records and Updating Field Values
+// 	// Getting Subgrid Records and Updating Field Values
 
-	var grid=formContext.getControl("BusinessAccounts");
+// 	var grid=formContext.getControl("SKUS");
 
-	var totalRecordCount=grid.getGrid().getTotalRecordCount();
+// 	var totalRecordCount=grid.getGrid().getTotalRecordCount();
 
-	// Calling WebApi.Update to Update Project Sku Count Value
+// 	// Calling WebApi.Update to Update Project Sku Count Value
 
-	var entityGuid = formContext.data.entity.getId().slice(1, -1);
+// 	var entityGuid = formContext.data.entity.getId().slice(1, -1);
 
-    var record = {};
-    record.bdf_skuscount = totalRecordCount; // Text
+//     var record = {};
+//     record.bdf_skuscount = totalRecordCount.toString(); // Text
 
-	Xrm.WebApi.updateRecord("bdf_project", ""+entityGuid+"", record).then(
-	function success(result) {
-	var updatedId = result.id;
-	console.log(updatedId);
-	},
-	function(error) {
-	console.log(error.message);
-	}
-	);
+// 	 await Xrm.WebApi.updateRecord("bdf_project", ""+entityGuid+"", record).then(
+// 	function success(result) {
+// 	var updatedId = result.id;
+// 	console.log(updatedId);
+// 	},
+// 	function(error) {
+// 	console.log(error.message);
+// 	}
+// 	);
 
-}
+// }

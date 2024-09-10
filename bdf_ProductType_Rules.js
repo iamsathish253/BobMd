@@ -5,6 +5,51 @@ function onLoad(executionContext, eventName) {
 	var input = pageContext.input;
 	var selectedViewId = input.formId;
 
+
+	// Getting  formContext added by sathish 8/26/2024
+	var formContext = executionContext.getFormContext();
+
+	var formType=formContext.ui.getFormType();
+	
+
+	//Checking formType if formType is Create then performing operation
+
+	if(formType==1){
+
+		var articelType=formContext.getAttribute("bdf_articletype").getValue();
+		var formName = Xrm.Page.ui.formSelector.getCurrentItem().getLabel();
+
+		if(articelType==1 && articelType!=null && formName!="Article Cleansing")
+			{
+                formContext.getAttribute("cr60a_generalitemcategorygroup").setValue("NORM");
+		    }else{
+				formContext.getAttribute("cr60a_generalitemcategorygroup").setValue("LUMF");
+			}
+	}
+
+
+	 //End 
+	 
+    // Adding adding addOnload event By Sathish 8/5/2024
+	formContext.data.addOnLoad(volumeMandatory);
+
+    // Adding OnChnage of Fields By Sathish 8/5/2024
+
+     // List of fields to register the OnChange event
+	 var fields = [
+        "bdf_outofpackaginglength",
+        "bdf_outofpackagingwidth",
+        "bdf_outofpackagingheight"
+    ];
+
+    fields.forEach(function(fieldName) {
+        var attribute = formContext.getAttribute(fieldName);
+        if (attribute) {
+            attribute.addOnChange(volumeMandatory);
+        }
+    });
+
+
 	//if (selectedViewId == '{200CD13D-8FAC-ED11-AAD1-00224828DDAF}') return;
 
 	// Collapse side panes
@@ -12,8 +57,7 @@ function onLoad(executionContext, eventName) {
 	//pane.close();
 	//Xrm.App.sidePanes.state = 0;
 
-	// Get formContext
-	var formContext = executionContext.getFormContext();
+
 
 	formContext.getControl("cr60a_warrantylength").setVisible(true);
 	if (formContext.getAttribute("cr60a_majorcode") != null) {
@@ -220,3 +264,42 @@ function articleGroupMandatory(executionContext) {
 		Xrm.Utility.alertDialog(e.message);
 	}
 }
+
+
+// Making Volume Filed Requrid By Sathis --- 8/2/2024
+
+function volumeMandatory(executionContext){
+
+    debugger;
+
+    var formContext=executionContext.getFormContext();
+
+    try {
+
+		var formName = Xrm.Page.ui.formSelector.getCurrentItem().getLabel();
+
+		if(formName!="Article Cleansing"){
+
+			var outofPackagingLength=formContext.getAttribute("bdf_outofpackaginglength").getValue();
+			var outofPackagingWidth=formContext.getAttribute("bdf_outofpackagingwidth").getValue();
+			var bdf_outofPackagingHeight=formContext.getAttribute("bdf_outofpackagingheight").getValue();
+
+
+        // Cheking fields contains Values are not
+        if(outofPackagingLength!=null || outofPackagingWidth!=null || bdf_outofPackagingHeight!=null ){
+             // Set the field "bdf_outofpackagingvolume" to be required
+            formContext.getAttribute("bdf_outofpackagingvolume").setRequiredLevel("required");
+        } else{
+			formContext.getAttribute("bdf_outofpackagingvolume").setRequiredLevel("none");
+		}
+	}
+
+        
+    } catch (error) {
+
+        Xrm.Navigation.openAlertDialog({text: error})
+        
+    }
+}
+
+//End

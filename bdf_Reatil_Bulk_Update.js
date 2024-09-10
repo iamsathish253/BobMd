@@ -140,6 +140,43 @@ function waitForElementsToDisappear(elementIds, callback, options) {
 		if (!doElementsExist) {
 			clearInterval(intervalHandle2);
 			intervalHandle2 = null;
+
+			// Creating Log File with Strat Date By Sathish 7/29/2024
+			window.logRecordId = "";
+			var record = {};
+
+			// Converting Time into EST
+
+			let start = new Date();
+			let options = {
+			timeZone: 'America/New_York',
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+			hour: '2-digit',
+			minute: '2-digit',
+			second: '2-digit',
+			hour12: true
+			};
+
+			let estTimeStart = start.toLocaleString('en-US', options);
+
+			record.bdf_processstatus = 2;
+			record.bdf_startdatetime = estTimeStart; // Date Time
+			record.bdf_flowname = "Bulk Update Retail Action"; // Text
+			
+			Xrm.WebApi.createRecord("bdf_sapintegrationactivitylog", record).then(
+				function success(result) {
+					logRecordId = result.id;
+					//console.log(newId);
+				},
+				function(error) {
+					//console.log(error.message);
+				}
+			);
+
+			//End
+
 			Xrm.Utility.showProgressIndicator("Checking for file upload status...");
 			if (callback) {
 				callback();
@@ -414,6 +451,31 @@ function retailSnapshot(formContext) {
 							Xrm.Utility.closeProgressIndicator();
 							//formContext.data.refresh();
 						});
+
+						// Updating log file with sucess if there is BackDated Data
+
+						var record = {};
+
+						let End = new Date();
+						let options = {
+						timeZone: 'America/New_York',
+						year: 'numeric',
+						month: '2-digit',
+						day: '2-digit',
+						hour: '2-digit',
+						minute: '2-digit',
+						second: '2-digit',
+						hour12: true
+						};
+			
+						let estTimeEND = End.toLocaleString('en-US', options);
+						record.bdf_processstatus = 1
+						record.bdf_enddatetime = estTimeEND; // Date Time
+						Xrm.WebApi.updateRecord("bdf_sapintegrationactivitylog",window.logRecordId, record);
+			
+						//End
+			
+
 				}
 
 				var retails;
@@ -442,24 +504,6 @@ function retailSnapshot(formContext) {
 					}
 
 					//actioncall(retails);
-
-                // Creating Log File with Strat Date By Sathish 7/29/2024
-                window.logRecordId = "";
-                var record = {};
-                record.bdf_startdatetime = new Date(); // Date Time
-                record.bdf_flowname = "Bulk Update Retail Action"; // Text
-                
-                Xrm.WebApi.createRecord("bdf_sapintegrationactivitylog", record).then(
-                    function success(result) {
-                        logRecordId = result.id;
-                        console.log(newId);
-                    },
-                    function(error) {
-                        console.log(error.message);
-                    }
-                );
-
-
 
 					for (let retail of retails) {
 
@@ -560,11 +604,28 @@ function actioncall(retail) {
 
 			if ((publishedArticles1 + unPublishedArticles1) == articlesCount) {
 
-            //Update End Date By Sathish 7/29/2024
+            //Update End Date By Sathish 7/29/2024 Creating Log File
 
             var record = {};
-            record.bdf_enddatetime = new Date(); // Date Time
+
+			let End = new Date();
+			let options = {
+			timeZone: 'America/New_York',
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+			hour: '2-digit',
+			minute: '2-digit',
+			second: '2-digit',
+			hour12: true
+			};
+
+			let estTimeEND = End.toLocaleString('en-US', options);
+			record.bdf_processstatus = 1
+            record.bdf_enddatetime = estTimeEND; // Date Time
             Xrm.WebApi.updateRecord("bdf_sapintegrationactivitylog",window.logRecordId, record);
+
+			//End
 
 				Xrm.Utility.closeProgressIndicator();
 				let unPublishedArticleResults;
