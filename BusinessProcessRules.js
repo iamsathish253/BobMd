@@ -43,31 +43,49 @@ async function checkVANArticleGroup(projectID) {
 
 	var error = false;
 	var data = await Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$filter=bdf_Project/bdf_projectid eq " + projectID + " and cr60a_vendorarticlenumber eq null and bdf_articletype eq 1");
+
 	if (data.entities.length > 0) {
+		// Map the article IDs of the failing records into an array
+		var failingArticleId = data.entities.map(variant => variant["cr60a_articleid"]);
+
+		// Join the IDs into a single string
+		var failingArticleIdsString = failingArticleId.join(", ");
+
+		// Display the error message with the failing article IDs
 		Xrm.Navigation.openAlertDialog({
-			text: "Please fill in Vendor Article Number for all related records before proceeding."
+			text: "Please fill in Vendor Article Number for the following article(s) before proceeding: " + failingArticleIdsString
 		});
+
 		error = true;
 	}
 
+
 	let ArticleGroupError = false;
-	var data = await Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$filter=bdf_Project/bdf_projectid eq " + projectID + " and _bdf_articlegroup_value eq null and bdf_globaldropstatus ne 1 &$expand=bdf_Generic($select=bdf_genericstage)");
+	let failingArticleIds = []; // Initialize an array to store the failing article IDs
+
+	var data = await Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master",
+		"?$filter=bdf_Project/bdf_projectid eq " + projectID +
+		" and _bdf_articlegroup_value eq null and bdf_globaldropstatus ne 1 &$expand=bdf_Generic($select=bdf_genericstage)"
+	);
+
 	if (data.entities.length > 0) {
 		for (let index = 0; index < data.entities.length; index++) {
 			let variant = data.entities[index];
 			if (variant.bdf_Generic.bdf_genericstage == null) {
 				error = true;
 				ArticleGroupError = true;
+				failingArticleIds.push(variant["cr60a_articleid"]); // Collect the failing article IDs
 			}
 		}
 
 		if (ArticleGroupError) {
+			let failingArticleIdsString1 = failingArticleIds.join(", "); // Join the IDs into a single string
 			Xrm.Navigation.openAlertDialog({
-				text: "Please fill in Article Group for all related records before proceeding."
+				text: "Please fill in Article Group for the following article(s) before proceeding: " + failingArticleIdsString1
 			});
 		}
-
 	}
+
 	return error;
 }
 
@@ -88,7 +106,7 @@ async function checkVariant(projectID, formContext) {
 				variant.bdf_inpackagingweight == 0 || variant.bdf_inpackagingweight == null ||
 				variant.bdf_inpackagingwidth == 0 || variant.bdf_inpackagingwidth == null)) {
 			Xrm.Navigation.openAlertDialog({
-				text: "Missing or zero Volume / Dimensions. Please provide this information before proceeding."
+				text: `Missing or zero Volume / Dimensions. Please provide this information before proceeding. (${variant["cr60a_articleid"]})`
 			});
 
 			error = true;
@@ -103,7 +121,7 @@ async function checkVariant(projectID, formContext) {
 			if (variant.bdf_retailprice == 0 || variant.bdf_retailprice == null) {
 
 				Xrm.Navigation.openAlertDialog({
-					text: "Missing or zero Retail. Please provide this information before proceeding."
+					text: `Missing or zero Retail. Please provide this information before proceeding. (${variant["cr60a_articleid"]})`
 				});
 
 				error = true;
@@ -114,28 +132,28 @@ async function checkVariant(projectID, formContext) {
 
 	// Product Type related attributes check
 	let missingData = false;
-	for (variant of data.entities) {
-		if (variant.bdf_Generic.bdf_genericstage == null) {
-			// Loop through each columns
-			for (const item in variant.cr60a_ProductType) {
-				if (item.startsWith("cr60a_pt") && variant.cr60a_ProductType[item] == "M") {
+	// for (variant of data.entities) {
+	// 	if (variant.bdf_Generic.bdf_genericstage == null) {
+	// 		// Loop through each columns
+	// 		for (const item in variant.cr60a_ProductType) {
+	// 			if (item.startsWith("cr60a_pt") && variant.cr60a_ProductType[item] == "M") {
 
-					fieldName = item.replace("cr60a_pt", "_cr60a_") + "_value";
-					fieldName2 = item.replace("cr60a_pt", "cr60a_");
-					if ((variant[fieldName] != undefined && variant[fieldName] == null) ||
-						(variant[fieldName2] != undefined && variant[fieldName2] == null)) {
-						Xrm.Navigation.openAlertDialog({
-							text: "Missing Product Type related attributes (" + fieldName + "). Please provide this information before proceeding."
-						});
-						missingData = true;
-						error = true;
-						break;
-					}
-				}
-			};
-			if (missingData) break;
-		}
-	}
+	// 				fieldName = item.replace("cr60a_pt", "_cr60a_") + "_value";
+	// 				fieldName2 = item.replace("cr60a_pt", "cr60a_");
+	// 				if ((variant[fieldName] !== undefined && variant[fieldName] === null) ||
+	// 					(variant[fieldName2] !== undefined && variant[fieldName2] === null)) {
+	// 					Xrm.Navigation.openAlertDialog({
+	// 						text: "Missing Product Type related attributes. Please provide this information before proceeding."
+	// 					});
+	// 					missingData = true;
+	// 					error = true;
+	// 					break;
+	// 				}
+	// 			}
+	// 		};
+	// 		if (missingData) break;
+	// 	}
+	// }
 	return error;
 }
 
@@ -262,11 +280,11 @@ async function fieldMandatory() {
 					fieldMandatoryResult.alertWidth = 360;
 
 					// After looping through all records
-					// errorMessage = "The following articles have missing sales text value:\n";
-					errorMessage = "Articles have missing sales text value. Please fill them before proceeding...\n";
-					// for (let articleId in articleCounts) {
-					// 	errorMessage += `${articleId}\n`;
-					// }
+					errorMessage = "The following articles have missing sales text value:\n";
+					//errorMessage = "Articles have missing sales text value. Please fill them before proceeding...\n";
+					for (let articleId in articleCounts) {
+						errorMessage += `${articleId}\n`;
+					}
 					fieldMandatoryResult.errorMessage = errorMessage;
 
 				}
@@ -311,7 +329,7 @@ async function addHardStop(executionContext) {
 	let factory = formContext.getAttribute("bdf_factory").getValue();
 
 	//Hard stop due to product type failures
-	if (['QC & Compliance', 'Testing & Launch', 'Ready To Buy'].includes(formContext.data.process.getActiveStage().getName()) &&  direction === "Next") {
+	if (['QC & Compliance', 'Testing & Launch', 'Ready To Buy'].includes(formContext.data.process.getActiveStage().getName()) && direction === "Next") {
 
 		let data = await Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", `?$orderby=bdf_outofpackagingvolume&$expand=bdf_Generic($select=bdf_genericstage),bdf_Project($select=bdf_minorcodelookup),cr60a_ProductType&$filter=(cr60a_cmstatus eq null and bdf_globaldropstatus ne 1 and bdf_Project/bdf_projectid eq  ${projectID})`);
 		for (variant of data.entities) {
@@ -323,10 +341,10 @@ async function addHardStop(executionContext) {
 
 						fieldName = item.replace("cr60a_pt", "_cr60a_") + "_value";
 						fieldName2 = item.replace("cr60a_pt", "cr60a_");
-						if ((variant[fieldName] != undefined && variant[fieldName] == null) ||
-						(variant[fieldName2] != undefined && variant[fieldName2] == null)) {
+						if ((variant[fieldName] !== undefined && variant[fieldName] === null) ||
+							(variant[fieldName2] !== undefined && variant[fieldName2] === null)) {
 							//message = message + "Missing Product Type related attributes (" + fieldName2 + "), ";
-							Xrm.Navigation.openAlertDialog({ text: "Missing Product Type related attributes. Please provide this information before proceeding." });
+							Xrm.Navigation.openAlertDialog({ text: `Missing Product Type related attributes (${variant["cr60a_articleid"]})` });
 							error = true;
 							break;
 						}
@@ -527,7 +545,70 @@ async function addHardStop(executionContext) {
 	}
 
 
-	if (formContext.data.process.getActiveStage().getName() == 'QC & Compliance') {
+	// if (formContext.data.process.getActiveStage().getName() == 'QC & Compliance') {
+	// 	// Retrieve records from "cr60a_stg_article_master" entity
+	// 	Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", `?$select=_cr60a_productsubtype_value,_cr60a_producttype_value,bdf_setuptimeminutes,_cr60a_size_value&$filter=(_bdf_project_value eq ${projectID} and bdf_setuptimeminutes eq null)`).then(
+	// 		function success(articleMasterResults) {
+	// 			// Retrieve records from "bdf_sapsetuptime" entity
+	// 			Xrm.WebApi.retrieveMultipleRecords("bdf_sapsetuptime", "?$select=_bdf_productsubtype_value,_bdf_producttype_value,bdf_setuptimeminutes,_bdf_size_value").then(
+	// 				function success(sapSetupTimeResults) {
+	// 					// Iterate through "cr60a_stg_article_master" records
+	// 					for (var i = 0; i < articleMasterResults.entities.length; i++) {
+	// 						var articleMasterResult = articleMasterResults.entities[i];
+
+	// 						// Initialize highest setup time
+	// 						var highestSetupTime = -1;
+
+	// 						// Iterate through "bdf_sapsetuptime" records
+	// 						for (var j = 0; j < sapSetupTimeResults.entities.length; j++) {
+	// 							var sapSetupTimeResult = sapSetupTimeResults.entities[j];
+
+	// 							// Identify non-null fields among the specified fields
+	// 							var nonNullFields = ["producttype_value", "productsubtype_value", "size_value"].filter(
+	// 								field => articleMasterResult[`_cr60a_${field}`] !== null
+	// 							);
+
+	// 							// Check if there are non-null fields in articleMasterResult
+	// 							if (nonNullFields.length > 0) {
+	// 								// Check if the non-null fields in articleMasterResult match sapSetupTimeResult
+	// 								var fieldsMatch = nonNullFields.every(
+	// 									field => articleMasterResult[`_cr60a_${field}`] === sapSetupTimeResult[`_bdf_${field}`]
+	// 								);
+
+	// 								if (fieldsMatch) {
+	// 									// Check if the current sapSetupTimeResult has a higher setuptime
+	// 									if (sapSetupTimeResult.bdf_setuptimeminutes > highestSetupTime) {
+	// 										highestSetupTime = sapSetupTimeResult.bdf_setuptimeminutes;
+	// 									}
+	// 								}
+	// 							}
+	// 						}
+
+	// 						// After the inner loop, update the "cr60a_stg_article_master" record with the highest setuptime
+	// 						if (highestSetupTime !== -1) {
+	// 							// Update Variant Entity function
+	// 							updateVariantEntity(articleMasterResult, highestSetupTime);
+	// 						}
+	// 					}
+	// 				}
+	// 			);
+	// 		}
+	// 	);
+
+	// 	// Update Variant Entity function
+	// 	function updateVariantEntity(articleMasterResult, highestSetupTime) {
+	// 		// Assuming you have the variant entity ID, replace 'variantEntityId' with the actual ID
+	// 		var variantEntityId = articleMasterResult["cr60a_stg_article_masterid"]; // Guid
+
+	// 		var data = {
+	// 			"bdf_setuptimeminutes": highestSetupTime
+	// 		};
+
+	// 		Xrm.WebApi.updateRecord("cr60a_stg_article_master", variantEntityId, data)
+	// 	}
+	// }
+
+	if (formContext.data.process.getActiveStage().getName() == 'QC & Compliance' || formContext.data.process.getActiveStage().getName() == 'Ready To Buy' || formContext.data.process.getActiveStage().getName() == 'Testing & Launch') {
 		// Retrieve records from "cr60a_stg_article_master" entity
 		Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", `?$select=_cr60a_productsubtype_value,_cr60a_producttype_value,bdf_setuptimeminutes,_cr60a_size_value&$filter=(_bdf_project_value eq ${projectID} and bdf_setuptimeminutes eq null)`).then(
 			function success(articleMasterResults) {
@@ -537,58 +618,63 @@ async function addHardStop(executionContext) {
 						// Iterate through "cr60a_stg_article_master" records
 						for (var i = 0; i < articleMasterResults.entities.length; i++) {
 							var articleMasterResult = articleMasterResults.entities[i];
-
-							// Initialize highest setup time
-							var highestSetupTime = -1;
-
+	
+							// Initialize variables
+							var exactMatchSetupTime = null;
+							var highestSetupTimeForSameProductType = null;
+	
 							// Iterate through "bdf_sapsetuptime" records
 							for (var j = 0; j < sapSetupTimeResults.entities.length; j++) {
 								var sapSetupTimeResult = sapSetupTimeResults.entities[j];
-
-								// Identify non-null fields among the specified fields
-								var nonNullFields = ["producttype_value", "productsubtype_value", "size_value"].filter(
-									field => articleMasterResult[`_cr60a_${field}`] !== null
-								);
-
-								// Check if there are non-null fields in articleMasterResult
-								if (nonNullFields.length > 0) {
-									// Check if the non-null fields in articleMasterResult match sapSetupTimeResult
-									var fieldsMatch = nonNullFields.every(
-										field => articleMasterResult[`_cr60a_${field}`] === sapSetupTimeResult[`_bdf_${field}`]
+	
+								// Check if product type matches
+								if (articleMasterResult._cr60a_producttype_value === sapSetupTimeResult._bdf_producttype_value) {
+	
+									// Check for exact match (product type, subtype, and size)
+									var isExactMatch = (
+										articleMasterResult._cr60a_productsubtype_value === sapSetupTimeResult._bdf_productsubtype_value &&
+										articleMasterResult._cr60a_size_value === sapSetupTimeResult._bdf_size_value
 									);
-
-									if (fieldsMatch) {
-										// Check if the current sapSetupTimeResult has a higher setuptime
-										if (sapSetupTimeResult.bdf_setuptimeminutes > highestSetupTime) {
-											highestSetupTime = sapSetupTimeResult.bdf_setuptimeminutes;
+	
+									if (isExactMatch) {
+										// If exact match is found, set the exact match setup time
+										exactMatchSetupTime = sapSetupTimeResult.bdf_setuptimeminutes;
+										break; // Break the loop as we found an exact match
+									} else {
+										// If only product type matches, track the highest setup time for this product type
+										if (highestSetupTimeForSameProductType === null || sapSetupTimeResult.bdf_setuptimeminutes > highestSetupTimeForSameProductType) {
+											highestSetupTimeForSameProductType = sapSetupTimeResult.bdf_setuptimeminutes;
 										}
 									}
 								}
 							}
-
-							// After the inner loop, update the "cr60a_stg_article_master" record with the highest setuptime
-							if (highestSetupTime !== -1) {
-								// Update Variant Entity function
-								updateVariantEntity(articleMasterResult, highestSetupTime);
+	
+							// Determine the setup time to use
+							var setupTimeToUse = exactMatchSetupTime !== null ? exactMatchSetupTime : highestSetupTimeForSameProductType;
+	
+							// Update the "cr60a_stg_article_master" record with the appropriate setup time
+							if (setupTimeToUse !== null) {
+								updateVariantEntity(articleMasterResult, setupTimeToUse);
 							}
 						}
 					}
 				);
 			}
 		);
-
+	
 		// Update Variant Entity function
-		function updateVariantEntity(articleMasterResult, highestSetupTime) {
+		function updateVariantEntity(articleMasterResult, setupTime) {
 			// Assuming you have the variant entity ID, replace 'variantEntityId' with the actual ID
 			var variantEntityId = articleMasterResult["cr60a_stg_article_masterid"]; // Guid
-
+	
 			var data = {
-				"bdf_setuptimeminutes": highestSetupTime
+				"bdf_setuptimeminutes": setupTime
 			};
-
-			Xrm.WebApi.updateRecord("cr60a_stg_article_master", variantEntityId, data)
+	
+			Xrm.WebApi.updateRecord("cr60a_stg_article_master", variantEntityId, data);
 		}
 	}
+	
 
 	if (direction == "Next" && !error) {
 		// executionContext.getEventArgs().preventDefault();
@@ -655,7 +741,7 @@ function addSoftWarning2(executionContext) {
 									variant.bdf_inpackaginglength == 0 || variant.bdf_inpackaginglength == null ||
 									variant.bdf_inpackagingweight == 0 || variant.bdf_inpackagingweight == null ||  //previously this was commented out
 									variant.bdf_inpackagingwidth == 0 || variant.bdf_inpackagingwidth == null)) {
-								message = message + "Missing or zero Volume / Dimensions, ";
+								message = message + `Missing or zero Volume / Dimensions for the Article (${variant["cr60a_articleid"]}), `;
 								error = true;
 								//formContext.data.process.addOnPreStageChange(addHardStop);
 								break;
@@ -683,7 +769,7 @@ function addSoftWarning2(executionContext) {
 					// Retail Check	
 					for (variant of data.entities) {
 						if ((variant.bdf_retailprice == 0 || variant.bdf_retailprice == null) && (formContext.data.process.getActiveStage().getName() === 'QC & Compliance' || formContext.data.process.getActiveStage().getName() == 'Ready To Buy' || formContext.data.process.getActiveStage().getName() == 'Testing & Launch') && variant.bdf_Generic.bdf_genericstage == null) {
-							message = message + "Missing or zero Retail, ";
+							message = message + `Missing or zero Retail for the Article (${variant["cr60a_articleid"]}), `;
 							error = true;
 							break;
 						}
@@ -692,7 +778,7 @@ function addSoftWarning2(executionContext) {
 					// Cost Check	
 					for (variant of data.entities) {
 						if (variant.cr60a_generalitemcategorygroup == 'NORM' && (variant.bdf_cost == 0 || variant.bdf_cost == null) && variant.bdf_Generic.bdf_genericstage == null) {
-							message = message + "Missing or zero Cost, ";
+							message = message + `Missing or zero Cost for the Article (${variant["cr60a_articleid"]}), `;
 							break;
 						}
 					}
@@ -709,9 +795,9 @@ function addSoftWarning2(executionContext) {
 
 									fieldName = item.replace("cr60a_pt", "_cr60a_") + "_value";
 									fieldName2 = item.replace("cr60a_pt", "cr60a_");
-									if ((variant[fieldName] != undefined && variant[fieldName] == null) ||
-						(variant[fieldName2] != undefined && variant[fieldName2] == null)) {
-										message = message + "Missing Product Type related attributes";
+									if ((variant[fieldName] !== undefined && variant[fieldName] === null) ||
+										(variant[fieldName2] !== undefined && variant[fieldName2] === null)) {
+										message = message + `Missing Product Type related attributes (${variant["cr60a_articleid"]})`;
 										missingData = true;
 										break;
 									}
@@ -725,7 +811,7 @@ function addSoftWarning2(executionContext) {
 							if (variant._bdf_commoditycode_value == null &&
 								(formContext.data.process.getActiveStage().getName() == 'Testing & Launch' ||
 									formContext.data.process.getActiveStage().getName() == 'Ready To Buy')) {
-								message = message + "Missing Commodity / HTS Code, ";
+								message = message + `Missing Commodity / HTS Code for the Article (${variant["cr60a_articleid"]}), `;
 								break;
 							}
 					}
@@ -863,67 +949,111 @@ function setProjectMandatoryFields(executionContext) {
 
 }
 
+
 //code for setting setup time on creation of new article
 function setupTime(executionContext) {
-	debugger;
+    debugger;
+  
+    var formContext = executionContext.getFormContext();
+    var genericLookup = formContext.getAttribute("bdf_generic");
+	var currentSetupTime = formContext.getAttribute("bdf_setuptimeminutes").getValue();
+    try {
+      if (currentSetupTime == null && genericLookup && genericLookup.getValue()) {
+        var genericId = genericLookup.getValue()[0].id.slice(1, -1);
+        var genericEntityName = genericLookup.getValue()[0].entityType;
+  
+        Xrm.WebApi.retrieveRecord(genericEntityName, genericId, "?$select=bdf_genericstage")
+          .then(result => {
+            if (result.bdf_genericstage) {
+              //console.log("Generic Stage:", result.bdf_genericstage);
+              var bdf_GenericStage = result["bdf_genericstage@OData.Community.Display.V1.FormattedValue"];
+              if (bdf_GenericStage !== null && ['Ready To Buy', 'Testing & Launch'].includes(bdf_GenericStage)) {
+                //call function
+                console.log("entered case 1");
+                AssignSetupTime()
+              } 
+            } else {
+                if (formContext.getAttribute("bdf_project") != null && formContext.getAttribute("bdf_project").getValue() != null) {
+                  projectID = formContext.getAttribute("bdf_project").getValue()[0].id.slice(1, -1);
+                  Xrm.WebApi.retrieveRecord("bdf_project", projectID, "?$expand=bpf_bdf_project_bdf_project_milestones($select=_activestageid_value)").then(
+                    function success(data) {
+                      //console.log(data);
+                      let milestone = data.bpf_bdf_project_bdf_project_milestones[0]['_activestageid_value@OData.Community.Display.V1.FormattedValue'];
+  
+                      if (['Ready To Buy', 'Testing & Launch'].includes(milestone)) {
+                        //code to be included
+                        console.log("entered case2");
+                        AssignSetupTime()
+                      }
+                    },
+                    function(error) {
+                      Xrm.Utility.alertDialog(error.message);
+                    }
+                  );
+                }
+              }
+          })
+          .catch(error => {
+            console.error("Error retrieving bdf_genericstage:", error.message);
+          });
+      }
+    } catch (e) {
+      Xrm.Utility.alertDialog(e.message);
+    }
+  
+  
+    function AssignSetupTime() {
+  
+      try {
+        console.log("entered Assign Setup Time function");
+        //if (formContext.getAttribute("bdf_setuptimeminutes").getValue() === null) {
+          var productTypeGuid = formContext.getAttribute("cr60a_producttype").getValue() ? formContext.getAttribute("cr60a_producttype").getValue()[0].id.slice(1, -1) : null;
+          var productSubTypeGuid = formContext.getAttribute("cr60a_productsubtype").getValue() ? formContext.getAttribute("cr60a_productsubtype").getValue()[0].id.slice(1, -1) : null;
+          var sizeGuid = formContext.getAttribute("cr60a_size").getValue() ? formContext.getAttribute("cr60a_size").getValue()[0].id.slice(1, -1) : null;
+  
+          try {
+            Xrm.WebApi.retrieveMultipleRecords("bdf_sapsetuptime", `?$filter=_bdf_producttype_value eq ${productTypeGuid} and _bdf_productsubtype_value eq ${productSubTypeGuid} and _bdf_size_value eq ${sizeGuid}&$select=bdf_setuptimeminutes`).then(
+              function success(data) {
+                // Initialize highest setup time
+                var highestSetupTime = -1;
+  
+                for (var i = 0; i < data.entities.length; i++) {
+                  var sapSetupTimeResult = data.entities[i];
+  
+                  // Check if the current sapSetupTimeResult has a higher setuptime
+                  if (sapSetupTimeResult.bdf_setuptimeminutes > highestSetupTime) {
+                    highestSetupTime = sapSetupTimeResult.bdf_setuptimeminutes;
+                    console.log( "highestSetupTime:",  highestSetupTime);
+                  }
+                }
+                if (highestSetupTime !== -1) {
+                  // Assuming you have the article entity ID, replace 'articleEntityId' with the actual ID
+                  var variantEntityId = formContext.data.entity.getId().slice(1, -1); // Guid
 
-	var formContext = executionContext.getFormContext();
-	try {
-		if (formContext.getAttribute("bdf_project") != null && formContext.getAttribute("bdf_project").getValue() != null) {
-			projectID = formContext.getAttribute("bdf_project").getValue()[0].id.slice(1, -1);
-			Xrm.WebApi.retrieveRecord("bdf_project", projectID, "?$expand=bpf_bdf_project_bdf_project_milestones($select=_activestageid_value)").then(
-				function success(data) {
-					//console.log(data);
-					let milestone = data.bpf_bdf_project_bdf_project_milestones[0]['_activestageid_value@OData.Community.Display.V1.FormattedValue'];
-
-					if (['Ready To Buy', 'Testing & Launch'].includes(milestone)) {
-						//code to be included
-						if (formContext.getAttribute("bdf_setuptimeminutes").getValue() === null) {
-							var productTypeGuid = formContext.getAttribute("cr60a_producttype").getValue() ? formContext.getAttribute("cr60a_producttype").getValue()[0].id.slice(1, -1) : null;
-							var productSubTypeGuid = formContext.getAttribute("cr60a_productsubtype").getValue() ? formContext.getAttribute("cr60a_productsubtype").getValue()[0].id.slice(1, -1) : null;
-							var sizeGuid = formContext.getAttribute("cr60a_size").getValue() ? formContext.getAttribute("cr60a_size").getValue()[0].id.slice(1, -1) : null;
-
-							try {
-								Xrm.WebApi.retrieveMultipleRecords("bdf_sapsetuptime", `?$filter=_bdf_producttype_value eq ${productTypeGuid} and _bdf_productsubtype_value eq ${productSubTypeGuid} and _bdf_size_value eq ${sizeGuid}&$select=bdf_setuptimeminutes`).then(
-									function success(data) {
-										// Initialize highest setup time
-										var highestSetupTime = -1;
-
-										for (var i = 0; i < data.entities.length; i++) {
-											var sapSetupTimeResult = data.entities[i];
-
-											// Check if the current sapSetupTimeResult has a higher setuptime
-											if (sapSetupTimeResult.bdf_setuptimeminutes > highestSetupTime) {
-												highestSetupTime = sapSetupTimeResult.bdf_setuptimeminutes;
-											}
-										}
-										if (highestSetupTime !== -1) {
-											// Assuming you have the article entity ID, replace 'articleEntityId' with the actual ID
-											//var articleEntityId = formContext.data.entity.getId().slice(1, -1); // Guid
-
-											// Set the attribute value using setAttribute
-											formContext.getAttribute("bdf_setuptimeminutes").setValue(highestSetupTime);
-
-										}
-									},
-									function (error) {
-										Xrm.Utility.alertDialog(error.message);
-									}
-								);
-							} catch (e) {
-								Xrm.Utility.alertDialog(e.message);
-							}
-						}
-					}
-				},
-				function (error) {
-					Xrm.Utility.alertDialog(error.message);
-				}
-			);
-		}
-	} catch (e) {
-		Xrm.Utility.alertDialog(e.message);
-	}
+				  var data = {
+					"bdf_setuptimeminutes": highestSetupTime
+				};
+	
+				Xrm.WebApi.updateRecord("cr60a_stg_article_master", variantEntityId, data)
+  
+                  // Set the attribute value using setAttribute
+                  //formContext.getAttribute("bdf_setuptimeminutes").setValue(highestSetupTime);
+  
+                }
+              },
+              function(error) {
+                Xrm.Utility.alertDialog(error.message);
+              }
+            );
+          } catch (e) {
+            Xrm.Utility.alertDialog(e.message);
+          }
+        //}
+      } catch (e) {
+        Xrm.Utility.alertDialog(e.message);
+      }
+  
+    }
 }
 
 //------------------------------------------------
@@ -1687,63 +1817,63 @@ function updateGenericCreateFamilyGroup(executionContext) {
 	try {
 
 		var formContext = executionContext.getFormContext();
-         
+
 		//Removed if Condition aganist FormType By Sathish 7/31/2024
 
 		//if (formContext.ui.getFormType() == 1) {
-			var familygroupcode = formContext.getAttribute("bdf_familygroupcode");
-			if (familygroupcode) {
-				familygroupcode1 = familygroupcode.getValue();
+		var familygroupcode = formContext.getAttribute("bdf_familygroupcode");
+		if (familygroupcode) {
+			familygroupcode1 = familygroupcode.getValue();
 
-				Xrm.WebApi.retrieveMultipleRecords("bdf_familygroup", `?$select=bdf_familycode,bdf_familyname&$filter=bdf_familycode eq '${familygroupcode1}'`).then(
-					function success(results) {
-						//console.log(results);
-						if (results.entities.length > 0) {
-							//----------------------------- check whether Provided code already exits or not in Generic entity
+			Xrm.WebApi.retrieveMultipleRecords("bdf_familygroup", `?$select=bdf_familycode,bdf_familyname&$filter=bdf_familycode eq '${familygroupcode1}'`).then(
+				function success(results) {
+					//console.log(results);
+					if (results.entities.length > 0) {
+						//----------------------------- check whether Provided code already exits or not in Generic entity
 
-							Xrm.WebApi.retrieveMultipleRecords("bdf_generic", `?$select=bdf_familygroupcode,bdf_familyname&$filter=bdf_familygroupcode eq '${familygroupcode1}'`).then(
-								function success(result) {
-									//console.log(result);
-									if (result.entities.length > 0) {
-										// for (var i = 0; i < results.entities.length; i++) {
-										// 	var result = results.entities[i];
-										// 	// Columns
-										// 	var bdf_genericid = result["bdf_genericid"]; // Guid
-										// 	var bdf_familygroupcode = result["bdf_familygroupcode"]; // Text
-										// 	var bdf_familyname = result["bdf_familyname"]; // Text
-										// }
-										formContext.getAttribute("bdf_familyname").setValue(null);
-										Xrm.Utility.alertDialog(`Provided Family code ${familygroupcode1} already exists in Generic Entity.`)
-									}
-
-									else {
-										var result = results.entities[0];
-										// Columns
-
-										var familyname = result["bdf_familyname"]; // Text
-										formContext.getAttribute("bdf_familyname").setValue(familyname);
-
-										var lookupValue = new Array();
-										lookupValue[0] = new Object();
-										lookupValue[0].id = result["bdf_familygroupid"];
-										lookupValue[0].name = familyname;
-										lookupValue[0].entityType = "bdf_familygroup";
-										formContext.getAttribute("bdf_familygroup").setValue(lookupValue);
-									}
+						Xrm.WebApi.retrieveMultipleRecords("bdf_generic", `?$select=bdf_familygroupcode,bdf_familyname&$filter=bdf_familygroupcode eq '${familygroupcode1}'`).then(
+							function success(result) {
+								//console.log(result);
+								if (result.entities.length > 0) {
+									// for (var i = 0; i < results.entities.length; i++) {
+									// 	var result = results.entities[i];
+									// 	// Columns
+									// 	var bdf_genericid = result["bdf_genericid"]; // Guid
+									// 	var bdf_familygroupcode = result["bdf_familygroupcode"]; // Text
+									// 	var bdf_familyname = result["bdf_familyname"]; // Text
+									// }
+									formContext.getAttribute("bdf_familyname").setValue(null);
+									Xrm.Utility.alertDialog(`Provided Family code ${familygroupcode1} already exists in Generic Entity.`)
 								}
-							);
-							//-----------------------------
-						}
 
-						else {
-							formContext.getAttribute("bdf_familyname").setRequiredLevel("required");
-							formContext.getAttribute("bdf_familyname").setValue(null);
+								else {
+									var result = results.entities[0];
+									// Columns
 
-							//formContext.getAttribute("bdf_familyname").addOnChange(checkUniqueFamilyName);
-						}
+									var familyname = result["bdf_familyname"]; // Text
+									formContext.getAttribute("bdf_familyname").setValue(familyname);
+
+									var lookupValue = new Array();
+									lookupValue[0] = new Object();
+									lookupValue[0].id = result["bdf_familygroupid"];
+									lookupValue[0].name = familyname;
+									lookupValue[0].entityType = "bdf_familygroup";
+									formContext.getAttribute("bdf_familygroup").setValue(lookupValue);
+								}
+							}
+						);
+						//-----------------------------
 					}
-				);
-			}
+
+					else {
+						formContext.getAttribute("bdf_familyname").setRequiredLevel("required");
+						formContext.getAttribute("bdf_familyname").setValue(null);
+
+						//formContext.getAttribute("bdf_familyname").addOnChange(checkUniqueFamilyName);
+					}
+				}
+			);
+		}
 		//}
 	}
 	catch (error) {
@@ -1759,83 +1889,88 @@ function checkUniqueFamilyName(executionContext) {
 		var formContext = executionContext.getFormContext();
 
 		//Removed if Condition aganist FormType By Sathish 7/31/2024
-		
+
 		//if (formContext.ui.getFormType() == 1) {
-			var famName = formContext.getAttribute("bdf_familyname").getValue();
-			// Function to properly escape single quotes in the variable value
-			function escapeSingleQuotes(value) {
-				if (value !== null) {
-					return value.replace(/'/g, "''");
+		var famName = formContext.getAttribute("bdf_familyname").getValue();
+		// Function to properly escape single quotes in the variable value
+		function escapeSingleQuotes(value) {
+			if (value !== null) {
+				return value.replace(/'/g, "''");
+			}
+		}
+
+		// Escape single quotes in familyname1
+		var escapedFamilyName = escapeSingleQuotes(famName);
+		Xrm.WebApi.retrieveMultipleRecords("bdf_familygroup", `?$select=bdf_familycode,bdf_familyname&$filter=bdf_familyname eq '${escapedFamilyName}'`).then(
+			function success(results) {
+
+				if (results.entities.length > 0) {
+
+					formContext.getAttribute("bdf_familyname").setValue(null); //it will prevent form from saving if not then the form getting saved.
+					Xrm.Utility.alertDialog(`Provide an unique family name.`);
+
+				}
+
+				else {
+					Xrm.WebApi.retrieveMultipleRecords("bdf_generic", `?$select=bdf_familygroupcode,bdf_familyname&$filter=bdf_familyname eq '${escapedFamilyName}'`).then(
+						function success(results) {
+							if (results.entities.length > 0) {
+
+
+								Xrm.Utility.alertDialog(`Provided Family code ${famName} already exists in Generic Entity.`);
+							}
+
+							else {
+								let input = {
+									"bdf_familycode": formContext.getAttribute('bdf_familygroupcode').getValue().toUpperCase(),
+									"bdf_familyname": formContext.getAttribute('bdf_familyname').getValue().toUpperCase(),
+								}
+
+								var projectId = formContext.getAttribute('bdf_project').getValue()[0].id.slice(1, -1);
+
+								Xrm.WebApi.retrieveRecord("bdf_project", projectId, "?$select=_bdf_collection_value").then(
+									function success(result) {
+										//console.log(result);
+										// Columns
+										var familyGroupGuidValue = result["_bdf_collection_value"];
+										if (familyGroupGuidValue) {
+											input["bdf_ProjectCollection@odata.bind"] = "/" + "bdf_familygroups" + "(" + familyGroupGuidValue + ")";
+										}
+										var bdf_collection = result["_bdf_collection_value"]; // Lookup
+
+										Xrm.WebApi.createRecord("bdf_familygroup", input).then(
+											function success(result) {
+												var lookup = new Array();
+												lookup[0] = new Object;
+												lookup[0].id = result.id;
+												lookup[0].name = formContext.getAttribute('bdf_familyname').getValue().toUpperCase();
+												lookup[0].entityType = "bdf_familygroup";
+												formContext.getAttribute("bdf_familygroup").setValue(lookup);
+
+												//Xrm.Page.data.entity.removeOnSave(preventSave);
+												//formContext.data.refresh(true);
+											},
+											function (error) {
+												if (error.title != 'Duplicate Record')
+													Xrm.Utility.alertDialog(error.message);
+											}
+										);
+									}
+								);
+							}
+						}
+					);
 				}
 			}
-
-			// Escape single quotes in familyname1
-			var escapedFamilyName = escapeSingleQuotes(famName);
-			Xrm.WebApi.retrieveMultipleRecords("bdf_familygroup", `?$select=bdf_familycode,bdf_familyname&$filter=bdf_familyname eq '${escapedFamilyName}'`).then(
-				function success(results) {
-
-					if (results.entities.length > 0) {
-
-						formContext.getAttribute("bdf_familyname").setValue(null); //it will prevent form from saving if not then the form getting saved.
-						Xrm.Utility.alertDialog(`Provide an unique family name.`);
-
-					}
-
-					else {
-						Xrm.WebApi.retrieveMultipleRecords("bdf_generic", `?$select=bdf_familygroupcode,bdf_familyname&$filter=bdf_familyname eq '${escapedFamilyName}'`).then(
-							function success(results) {
-								if (results.entities.length > 0) {
-
-
-									Xrm.Utility.alertDialog(`Provided Family code ${famName} already exists in Generic Entity.`);
-								}
-
-								else {
-									let input = {
-										"bdf_familycode": formContext.getAttribute('bdf_familygroupcode').getValue().toUpperCase(),
-										"bdf_familyname": formContext.getAttribute('bdf_familyname').getValue().toUpperCase(),
-									}
-
-									var projectId = formContext.getAttribute('bdf_project').getValue()[0].id.slice(1, -1);
-
-									Xrm.WebApi.retrieveRecord("bdf_project", projectId, "?$select=_bdf_collection_value").then(
-										function success(result) {
-											//console.log(result);
-											// Columns
-											var familyGroupGuidValue = result["_bdf_collection_value"];
-											if (familyGroupGuidValue) {
-												input["bdf_ProjectCollection@odata.bind"] = "/" + "bdf_familygroups" + "(" + familyGroupGuidValue + ")";
-											}
-											var bdf_collection = result["_bdf_collection_value"]; // Lookup
-
-											Xrm.WebApi.createRecord("bdf_familygroup", input).then(
-												function success(result) {
-													var lookup = new Array();
-													lookup[0] = new Object;
-													lookup[0].id = result.id;
-													lookup[0].name = formContext.getAttribute('bdf_familyname').getValue().toUpperCase();
-													lookup[0].entityType = "bdf_familygroup";
-													formContext.getAttribute("bdf_familygroup").setValue(lookup);
-
-													//Xrm.Page.data.entity.removeOnSave(preventSave);
-													//formContext.data.refresh(true);
-												},
-												function (error) {
-													if (error.title != 'Duplicate Record')
-														Xrm.Utility.alertDialog(error.message);
-												}
-											);
-										}
-									);
-								}
-							}
-						);
-					}
-				}
-			);
+		);
 		//}
 	} catch (error) {
 		Xrm.Utility.alertDialog(error.message);
 	}
 }
 //End
+
+function onloadSetupTime(){
+    debugger;
+    Xrm.Page.data.entity.addOnPostSave(setupTime);
+}
