@@ -12,7 +12,7 @@ function displayHeroImage(executionContext)
 		let formContext = executionContext.getFormContext();
 		// Get URL to display
 		let subgrid = Xrm.Page.ui.controls.get("sharepoint_doc");
-     console.log("subgrid: " +subgrid);
+        //console.log("subgrid: " +subgrid);
 		var row = subgrid.getGrid().getRows().getAll()[0];
 		//if (row != undefined) {
 		// Check if top seller article is provided.

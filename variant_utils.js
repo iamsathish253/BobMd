@@ -748,3 +748,6 @@ async function preventSplDelFeeIndicator(executionContext) {
 				formContext.getAttribute("cr60a_generalitemcategorygroup").setValue("LUMF");
 		}
 	}
+
+
+	

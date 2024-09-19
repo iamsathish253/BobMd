@@ -90,8 +90,8 @@ function displayHeroImage(executionContext)
 		{
 			if((row.getAttribute("relativelocation").getValue()!==null && row.getAttribute("relativelocation").getValue()!==undefined) ||  (row.getAttribute("bdf_heroimage").getValue()!==null &&  row.getAttribute("bdf_heroimage").getValue()!==undefined))
 				{
-				let file = row.getAttribute("relativelocation").getValue();
-				let hero = row.getAttribute("bdf_heroimage").getValue();
+				var file = row.getAttribute("relativelocation").getValue();
+				var hero = row.getAttribute("bdf_heroimage").getValue();
 			   }
 			
 			if (hero == "No")
