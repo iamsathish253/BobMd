@@ -34,8 +34,6 @@ function displayHeroImage(executionContext)
 		}
 
 	}
-
-
 	
 //
 	gridContext.addOnLoad(heroImage);

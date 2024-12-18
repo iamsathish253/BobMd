@@ -276,6 +276,62 @@ var createPackage = {
 					break;
 			}
 
+			var highestSetupTime = null; // Define the variable outside the API calls
+
+			if (productType !== null) {
+				try {
+					// First API call to retrieve the bdf_genericstage
+					const result = await Xrm.WebApi.retrieveRecord("bdf_generic", genericGUID, "?$select=bdf_genericstage");
+					const bdf_GenericStage = result["bdf_genericstage@OData.Community.Display.V1.FormattedValue"];
+					if (result && bdf_GenericStage && ['Ready To Buy', 'Testing & Launch'].includes(bdf_GenericStage)) {	
+							// Call AssignSetupTime if the condition is met
+							await AssignSetupTime();	 
+					} else {
+						// If generic stage condition doesn't meet, check project milestones
+						const projectData = await Xrm.WebApi.retrieveRecord("bdf_project", projectGUID, "?$expand=bpf_bdf_project_bdf_project_milestones($select=_activestageid_value)");
+						const milestone = projectData.bpf_bdf_project_bdf_project_milestones[0]['_activestageid_value@OData.Community.Display.V1.FormattedValue'];
+
+						if (['Ready To Buy', 'Testing & Launch'].includes(milestone)) {
+							// Call AssignSetupTime if project milestone matches
+							await AssignSetupTime();
+						} else {
+							highestSetupTime = null;
+						}
+					}
+					
+				} catch (error) {
+					Xrm.Utility.alertDialog(error.message);
+				}
+			} else {
+				highestSetupTime = null;
+			}
+
+			async function AssignSetupTime() {
+				try {
+					// First API call to retrieve the productId based on the productType
+					const productResult = await Xrm.WebApi.retrieveMultipleRecords("cr60a_producttype", `?$filter=cr60a_code eq '${productType}'&$select=cr60a_producttypeid`);
+					if (productResult.entities.length > 0) {
+						const productId = productResult.entities[0]["cr60a_producttypeid"];
+						
+						// Second API call to retrieve the highest bdf_setuptimeminutes where _cr60a_producttype_value matches productId
+						const sapSetupResult = await Xrm.WebApi.retrieveMultipleRecords("bdf_sapsetuptime", `?$filter=_bdf_producttype_value eq '${productId}'&$select=bdf_setuptimeminutes`);
+						if (sapSetupResult.entities.length > 0) {
+							// Iterate through the results to find the highest bdf_setuptimeminutes
+							sapSetupResult.entities.forEach(entity => {
+								if (entity.bdf_setuptimeminutes > highestSetupTime) {
+									highestSetupTime = entity.bdf_setuptimeminutes;
+								}
+							});
+
+						}
+					}
+				} catch (error) {
+					Xrm.Utility.alertDialog(error.message);
+				}
+			}
+
+
+
 			let productSubType = null;
 			//if (productType != null && source['_cr60a_productsubtype_value@OData.Community.Display.V1.FormattedValue'] != null)
 			//		productSubType = source['_cr60a_productsubtype_value@OData.Community.Display.V1.FormattedValue'].replace(source['_cr60a_producttype_value@OData.Community.Display.V1.FormattedValue'], productType);
@@ -315,6 +371,7 @@ var createPackage = {
 
 			var input =
 			{
+				"bdf_grprocessingtime": (source["bdf_grprocessingtime"] == null ? 6 : source["bdf_grprocessingtime"]),
 				"bdf_zone2retailprice": bdf_zone2retailprice,
 				"bdf_zone3retailprice": bdf_zone3retailprice,
 				"bdf_zone4retailprice": bdf_zone4retailprice,
@@ -493,6 +550,7 @@ var createPackage = {
 				"bdf_retailprice": bdf_retailprice,
 				"bdf_rptype": 1,
 				//"bdf_setuptimeminutes": bdf_setuptimeminutes,	// not requied for packages
+				"bdf_setuptimeminutes": highestSetupTime == null ? null : highestSetupTime,	// not requied for packages
 				"bdf_tariffindicator": source['bdf_tariffindicator'],
 				"bdf_tariff": source['bdf_tariff'],
 				"bdf_sizename": sizeAdj
@@ -1038,7 +1096,13 @@ var createPackage = {
 						formContext.getControl("project_variant_margin").refresh();
 						formContext.data.refresh(true);
 					}
-				}
+				},
+					//Added By Sathish 10/08/2024
+					function error(error) {
+						// Reset draft cost
+						Xrm.Utility.closeProgressIndicator();
+						Xrm.Navigation.openErrorDialog({message: error.message });
+					}
 			);
 		},
 
@@ -1078,7 +1142,7 @@ var createPackage = {
 			Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$filter=bdf_draftretail eq true and _bdf_project_value eq " + parentID).then(
 				function success(data) {
 					if (data.entities.length == 0)
-						Xrm.Utility.alertDialog("There is no pending retail to publish.");
+						Xrm.Utility.alertDialog("There is no pending retail to publish. You may need to use the zone retail upload functionality if an article is in Testing & Launch phase.");
 					else {
 
 						// Open a new form to get the effective date
@@ -1159,7 +1223,7 @@ var createPackage = {
 			//thisRow.data.entity.attributes.get('description').controls.get(0).setDisabled(false); // Or other control methods
 		},
 
-		createRecords: function (effectiveDate, variant, freight, last, formContext,poimpacttype) {
+		createRecords: function (effectiveDate, variant, freight, last, formContext, poimpacttype) {
 			// Create new snapshot entries
 			var articleGUID = variant.cr60a_stg_article_masterid;
 
@@ -1193,7 +1257,7 @@ var createPackage = {
 			Xrm.WebApi.createRecord("bdf_articleinforecord", input).then(
 				function success(result) {
 					// Reset draft cost
-					var input = { "bdf_draftcost": false ,"bdf_poimpacttype":poimpacttype}; // Added by sathish poimpacttype 08-05-2024
+					var input = { "bdf_draftcost": false, "bdf_poimpacttype": poimpacttype, "bdf_poimpactdate": effectiveDate }; // Modified by sathish poimpacttype,bdf_poimpactdate 17-05-2024
 					Xrm.WebApi.updateRecord("cr60a_stg_article_master", articleGUID, input);
 
 					if (last) {
@@ -1204,12 +1268,19 @@ var createPackage = {
 						formContext.getControl("project_variant_margin").refresh();
 						formContext.data.refresh(true);
 					}
+				},
+
+				//Added By Sathish 10/08/2024
+				function error(error) {
+					// Reset draft cost
+					Xrm.Utility.closeProgressIndicator();
+					Xrm.Navigation.openErrorDialog({message: error.message });
 				}
 			);
 		},
 
-		deleteRecords: function (effectiveDate, variant, freight, last, formContext,poimpacttype) {
-        // Added by Sathish poimpacttype 08-05-2024
+		deleteRecords: function (effectiveDate, variant, freight, last, formContext, poimpacttype) {
+			// Added by Sathish poimpacttype 08-05-2024
 			var articleGUID = variant.cr60a_stg_article_masterid;
 			// Delete existing records if available
 			Xrm.WebApi.retrieveMultipleRecords("bdf_articleinforecord", "?$select=bdf_articleinforecordid&$filter=bdf_infotype eq 1 and _bdf_articleid_value eq " + articleGUID + " and bdf_effectivedate eq " + effectiveDate).then(
@@ -1220,13 +1291,13 @@ var createPackage = {
 							Xrm.WebApi.deleteRecord("bdf_articleinforecord", articleInfoGUID).then(
 								function success(result) {
 									// Create new snapshot entries
-									publishCost.createRecords(effectiveDate, variant, freight, last, formContext,poimpacttype); // Added by Sathish poimpacttype 08-05-2024
+									publishCost.createRecords(effectiveDate, variant, freight, last, formContext, poimpacttype); // Added by Sathish poimpacttype 08-05-2024
 								}
 							);
 						}
 					} else {
 						// Create new snapshot entries
-						publishCost.createRecords(effectiveDate, variant, freight, last, formContext,poimpacttype); // Added by Sathish poimpacttype 08-05-2024
+						publishCost.createRecords(effectiveDate, variant, freight, last, formContext, poimpacttype); // Added by Sathish poimpacttype 08-05-2024
 					}
 				}
 			);
@@ -1278,7 +1349,7 @@ var createPackage = {
 								Xrm.WebApi.retrieveRecord("bdf_projectcostretailsnapshot", result.savedEntityReference[0].id).then(
 									function success(data) {
 										var effectiveDate = data.bdf_effectivedate;
-										var poimpacttype=data.bdf_poimpacttype; // Added poimpacttype by Sathish 08-05-2024
+										var poimpacttype = data.bdf_poimpacttype; // Added poimpacttype by Sathish 08-05-2024
 
 										// Save in variant table
 										Xrm.WebApi.retrieveMultipleRecords("cr60a_stg_article_master", "?$filter=bdf_draftcost eq true and _bdf_project_value eq " + parentID).then(
@@ -1288,7 +1359,7 @@ var createPackage = {
 												for (let variant of data.entities) {
 													//var articleGUID = variant.cr60a_stg_article_masterid;
 													var last = variant === data.entities.at(-1) ? true : false
-													publishCost.deleteRecords(effectiveDate, variant, freight, last, formContext,poimpacttype); // Added poimpacttype by Sathish 08-05-2024
+													publishCost.deleteRecords(effectiveDate, variant, freight, last, formContext, poimpacttype); // Added poimpacttype by Sathish 08-05-2024
 												}
 											}
 										);
@@ -1395,33 +1466,98 @@ function onChangeDC5(articleId, dc5Indicator) {
 
 // Added By Sathish............................... 26-04-2024
 
-function hidePublishRetailButton(primaryControl) { 
+// function hidePublishRetailButton(primaryControl) { 
 
-	debugger;
+// 	debugger;
 
-	try { 
-	var formContext = primaryControl; 
+// 	try { 
+// 	var formContext = primaryControl; 
 
-	// Checking entity Name if Entity Name is Project then we are
+// 	// Checking entity Name if Entity Name is Project then we are
 
-	let entityName=formContext.data.entity.getEntityName();
-	if(entityName!=null && entityName==='bdf_project'){
+// 	let entityName=formContext.data.entity.getEntityName();
+// 	if(entityName!=null && entityName==='bdf_project'){
 
-		var activeStage = formContext.data.process.getActiveStage(); 
-	    var getactivestagename = activeStage.getName(); 
+// 		var activeStage = formContext.data.process.getActiveStage(); 
+// 	    var getactivestagename = activeStage.getName(); 
 
-		// Checking BPF Stage if Stage is Testing & Launch then we are hideing the PublishRetail Button
-		if (getactivestagename === "Testing & Launch") { 
-			return false;
-		} 
-	 
-    }
-	
-	} catch (e) { 
+// 		// Checking BPF Stage if Stage is Testing & Launch then we are hideing the PublishRetail Button
+// 		if (getactivestagename === "Testing & Launch") { 
+// 			return false;
+// 		} 
 
-	Xrm.Utility.alertDialog(error.message);
-	 
-	} 
-	 
-} 
+//     }
 
+// 	} catch (e) { 
+
+// 	Xrm.Utility.alertDialog(error.message);
+
+// 	} 
+
+// } 
+// End
+
+//function onSubgridLoadAndSelect() {
+//    debugger;
+//    try {
+//        var subgridControl = Xrm.Page.getControl("project_variant_dim");
+//        if (subgridControl) {
+//            subgridControl.addOnLoad(lockFieldsOnSubgridLoad);
+//        }
+//    } catch (error) {
+//        console.error("Error attaching events: ", error);
+//    }
+//}
+//
+//function lockFieldsOnSubgridLoad(executionContext) {
+//    debugger;
+//    try {
+//        var formContext = executionContext.getFormContext();
+//        var subgridControl = formContext.getControl("project_variant_dim");
+//        var grid = subgridControl.getGrid();
+//
+//        if (grid) {
+//            // Attach OnRecordSelect event
+//            grid.addOnRecordSelect(lockFieldsOnRecordSelect);
+//
+//            var rows = grid.getRows();
+//            rows.forEach(function (row) {
+//                var rowData = row.getData();
+//                var entity = rowData.getEntity();
+//                //lockFields(entity);
+//            });
+//        }
+//    } catch (error) {
+//        Xrm.Navigation.openAlertDialog({ text: error.message });
+//    }
+//}
+//
+//function lockFieldsOnRecordSelect(executionContext) {
+//    debugger;
+//    try {
+//           var selectedRow = executionContext.getFormContext().data.entity;
+//        lockFields(selectedRow);
+//    } catch (error) {
+//        Xrm.Navigation.openAlertDialog({ text: error.message });
+//    }
+//}
+//
+//function lockFields(entity) {
+//    debugger;
+//    try {
+//        var lockFields = ["bdf_inpackaginglength", "bdf_inpackagingwidth", "bdf_inpackagingheight"];
+//        
+//        lockFields.forEach(function (fieldName) {
+//            var attribute = entity.attributes.get(fieldName);
+//            if (attribute) {
+//                attribute.controls.forEach(function (control) {
+//                    control.setDisabled(true);
+//                });
+//            } else {
+//                console.warn("Field " + fieldName + " is not present in the entity.");
+//            }
+//        });
+//    } catch (error) {
+//        Xrm.Navigation.openAlertDialog({ text: error.message });
+//    }
+//}

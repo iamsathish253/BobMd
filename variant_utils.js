@@ -165,7 +165,7 @@ async function updateVariantData(executionContext) {
 		var goofProof = formContext.getAttribute("bdf_goofproofindicator").getValue();
 		if (formContext.ui.getFormType() == 1 || goofProof == null) {
 			var minorCode = formContext.getAttribute("bdf_minorcodenameproject").getValue();
-			if (minorCode == 'MATTRESSES & FOUNDATIONS' || minorCode == 'MATTRESS PADS' || minorCode == 'TABLETOP ACCESSORIES' || minorCode == 'PET FURNITURE' || minorCode == 'TREES' || minorCode == 'FLORAL' || minorCode == 'OUTDOOR OTHER' || minorCode == 'MATTRESSES AND FOUNDATIONS OUTLET')
+			if (minorCode == 'MATTRESSES & FOUNDATIONS' || minorCode == 'MATTRESS PADS' || minorCode == 'TABLETOP ACCESSORIES' || minorCode == 'PET FURNITURE' || minorCode == 'TREES' || minorCode == 'FLORAL' || minorCode == 'OUTDOOR OTHER' || minorCode == 'MATTRESSES AND FOUNDATIONS OUTLET' || minorCode=='WALL DECOR & SCREENS')
 				formContext.getAttribute("bdf_goofproofindicator").setValue(false);
 			else
 				formContext.getAttribute("bdf_goofproofindicator").setValue(true);
@@ -235,7 +235,10 @@ async function updateVariantData(executionContext) {
 			formContext.getAttribute("bdf_customerfacingindicator").setValue(true);
 
 		productType = formContext.getAttribute("cr60a_producttype");
-		productTypeName = productType.getValue()[0].name;
+		var productTypeName;
+		if (productType.getValue()) {
+			productTypeName = productType.getValue()[0].name;
+		}
 		if (productType && (productTypeName == 'Sectional Sets' || productTypeName == 'Sectional Component(s)'))
 			formContext.getAttribute("bdf_customerfacingindicator").setValue(true);
 	}
@@ -486,7 +489,7 @@ async function updateNotes(executionContext) {
 					// Check if current and previous notes are different
 
 					// Concatenate the current and previous values into a neat string
-					var notesHistory = `${currentNotes} \nComment added by: ${currentUserInfo} on: ${new Date().toLocaleString()}\n\n ${previousNotesWithMetadata ? previousNotesWithMetadata + '\n' : ''}`;
+					var notesHistory = `${currentNotes} \n\nComment added by: ${currentUserInfo} on: ${new Date().toLocaleString()}\n\n ${previousNotesWithMetadata ? previousNotesWithMetadata + '\n' : ''}`;
 
 
 					await formContext.data.refresh(true);
@@ -687,67 +690,64 @@ function preventOnlineExclusiveIndicator(executionContext) {
 // }
 
 async function preventSplDelFeeIndicator(executionContext) {
-    debugger;
+	debugger;
 
-    try {
-        var formContext = executionContext.getFormContext();
-        var specialDeliveryFeeIndicator = formContext.getAttribute("bdf_specialdeliveryfeeindicator").getValue();
-        var articleType = formContext.getAttribute("bdf_articletype").getValue();
+	try {
+		var formContext = executionContext.getFormContext();
+		var specialDeliveryFeeIndicator = formContext.getAttribute("bdf_specialdeliveryfeeindicator").getValue();
+		var articleType = formContext.getAttribute("bdf_articletype").getValue();
 
-        let packageId = formContext.data.entity.getId().slice(1, -1);
-        if (specialDeliveryFeeIndicator && (articleType == 2 || articleType == 3)) {
-            try {
-                const results = await Xrm.WebApi.retrieveMultipleRecords("bdf_articlebillofmaterial", "?$filter=_bdf_packagearticle_value eq " + packageId);
-                console.log(results);
+		let packageId = formContext.data.entity.getId().slice(1, -1);
+		if (specialDeliveryFeeIndicator && (articleType == 2 || articleType == 3)) {
+			try {
+				const results = await Xrm.WebApi.retrieveMultipleRecords("bdf_articlebillofmaterial", "?$filter=_bdf_packagearticle_value eq " + packageId);
+				console.log(results);
 
-                let found = false;               
-                for (const entity of results.entities) {
-                    var componentArticleId = entity._bdf_componentarticle_value;
-                    const componentResult = await Xrm.WebApi.retrieveRecord("cr60a_stg_article_master", componentArticleId, "?$select=bdf_specialdeliveryfeeindicator");
-                    var componentSpecialDeliveryFeeIndicator = componentResult.bdf_specialdeliveryfeeindicator;
-                    console.log("Component Special Delivery Fee Indicator: " + componentSpecialDeliveryFeeIndicator);
+				let found = false;
+				for (const entity of results.entities) {
+					var componentArticleId = entity._bdf_componentarticle_value;
+					const componentResult = await Xrm.WebApi.retrieveRecord("cr60a_stg_article_master", componentArticleId, "?$select=bdf_specialdeliveryfeeindicator");
+					var componentSpecialDeliveryFeeIndicator = componentResult.bdf_specialdeliveryfeeindicator;
+					console.log("Component Special Delivery Fee Indicator: " + componentSpecialDeliveryFeeIndicator);
 
-                    if (componentSpecialDeliveryFeeIndicator === true) {
-                        found = true;
-                        break;
-                    }
-                }
+					if (componentSpecialDeliveryFeeIndicator === true) {
+						found = true;
+						break;
+					}
+				}
 
-                if (!found) {
-                    formContext.getAttribute("bdf_specialdeliveryfeeindicator").setValue(false);
-                    formContext.data.refresh(true);
-                    await Xrm.Navigation.openErrorDialog({ message: "None of the Components have Special Delivery Fee Indicator turned to Yes" });
-                }
+				if (!found) {
+					formContext.getAttribute("bdf_specialdeliveryfeeindicator").setValue(false);
+					formContext.data.refresh(true);
+					await Xrm.Navigation.openErrorDialog({ message: "None of the Components have Special Delivery Fee Indicator turned to Yes" });
+				}
 
-            } catch (error) {
-                await Xrm.Navigation.openErrorDialog({ message: error.message });
-            }
-        }
+			} catch (error) {
+				await Xrm.Navigation.openErrorDialog({ message: error.message });
+			}
+		}
 
-    } catch (error) {
-        await Xrm.Navigation.openErrorDialog({ message: error.message });
-    }
+	} catch (error) {
+		await Xrm.Navigation.openErrorDialog({ message: error.message });
+	}
 }
 
 //End
 
-	// Set GeneralItemCategory Group modified by sathish 8/23/2024
+// Set GeneralItemCategory Group modified by sathish 8/23/2024
 
-	
-	function onChangeGeneralItemCategory(executionContext){
 
-		debugger;
-		var formContext=executionContext.getFormContext();
+function onChangeGeneralItemCategory(executionContext) {
 
-		if (formContext.getAttribute("bdf_articletype"))
-			var articleType = formContext.getAttribute("bdf_articletype").getValue();
-		if (articleType && formContext.getAttribute("cr60a_generalitemcategorygroup") != null) {
-			if (articleType == 1)
-				formContext.getAttribute("cr60a_generalitemcategorygroup").setValue("NORM");
-			else
-				formContext.getAttribute("cr60a_generalitemcategorygroup").setValue("LUMF");
-		}
+	debugger;
+	var formContext = executionContext.getFormContext();
+
+	if (formContext.getAttribute("bdf_articletype"))
+		var articleType = formContext.getAttribute("bdf_articletype").getValue();
+	if (articleType && formContext.getAttribute("cr60a_generalitemcategorygroup") != null) {
+		if (articleType == 1)
+			formContext.getAttribute("cr60a_generalitemcategorygroup").setValue("NORM");
+		else
+			formContext.getAttribute("cr60a_generalitemcategorygroup").setValue("LUMF");
 	}
-
-
-	
+}

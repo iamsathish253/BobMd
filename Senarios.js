@@ -75,3 +75,62 @@ function callPowerAutomate(primaryControl){
         Xrm.Navigation.openAlertDialog({text:error.message});
     }
 }
+
+
+function onLoad(executionContext){
+
+    debugger;
+  var formContext=executionContext.getFormContext();
+
+  var Guid=Xrm.Page.data.entity.getId().slice(1,-1)
+
+
+    Xrm.WebApi.retrieveRecord("testpa_sample", Guid, "?$select=testpa_baiscsalary,_testpa_lookup_incident_value,testpa_name").then(
+        function success(result) {
+            console.log(result);
+            // Columns
+          // Guid
+          
+           
+            var testpa_lookup_incident = result["_testpa_lookup_incident_value"]; // Lookup
+            var testpa_lookup_incident_formatted = result["_testpa_lookup_incident_value@OData.Community.Display.V1.FormattedValue"];
+            var testpa_lookup_incident_looktestpa_lookup_incidentuplogicalname = result["_testpa_lookup_incident_value@Microsoft.Dynamics.CRM.lookuplogicalname"];
+            var testpa_name =  result.testpa_name; // Text
+           
+
+            var alertStrings = { confirmButtonLabel: "Ok", text: "Values Retrived from WebApi"+testpa_lookup_incident_formatted +","+testpa_name };
+           var alertOptions = { height: 120, width: 260 };
+           Xrm.Navigation.openAlertDialog(alertStrings, alertOptions);
+
+
+            
+        },
+        function(error) {
+            console.log(error.message);
+        }
+    );
+}
+
+
+async function autoSetValues(executionContext){
+    debugger;
+
+    var formContext=executionContext.getFormContext();
+
+    var lookUp=formContext.getAttribute("testpa_lookup_incident").getValue();
+
+    if(lookUp!=null && lookUp!=undefined){
+    var lookUpGuid=lookUp[0].id.slice(1,-1);
+
+    var result =  await Xrm.WebApi.retrieveRecord("crd21_incidenttable",lookUpGuid, "?$select=crd21_location,crd21_type");
+
+     var crd21_location = result["crd21_location"]; // Text
+     //var crd21_type = result["crd21_type"]; // Choice
+     var crd21_type_formatted = result["crd21_type@OData.Community.Display.V1.FormattedValue"];
+     
+    formContext.getAttribute("testpa_city").setValue(crd21_location);
+    formContext.getAttribute("testpa_email").setValue(crd21_type_formatted)
+
+}
+
+}

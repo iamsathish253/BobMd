@@ -8,6 +8,19 @@ function setBusinessProcessRules(executionContext) {
 	var formContext = executionContext.getFormContext();
 	formContext.data.process.addOnPreStageChange(addHardStop);
 
+	//addOnPreSearch of Specific Color and Specific Finish By Sathish 9/18/2020
+
+	var entityName=formContext.data.entity.getEntityName();
+
+	if(entityName=="bdf_generic"){
+
+		formContext.getControl("bdf_specificcolor_new").addPreSearch(filiterSpecificColor);
+		formContext.getControl("bdf_specificfinish_new").addPreSearch(filiterSpecificFinish);
+
+	}
+
+
+
 	// Added By Sathish..........................................26-04-2024
 
 	// formContext.data.process.addOnStageChange(function (executionContext) {
@@ -1973,4 +1986,67 @@ function checkUniqueFamilyName(executionContext) {
 function onloadSetupTime(){
     debugger;
     Xrm.Page.data.entity.addOnPostSave(setupTime);
+}
+//End
+
+// Filtering Specific Color and Finish in Generic Table based on Color Group and Finish Group by Sathish 9/18/2024
+
+
+function filiterSpecificColor(executionContext){
+
+	debugger
+
+	try {
+
+		var formContext=executionContext.getFormContext();
+		var colorGroup=formContext.getAttribute("bdf_colorgroup").getValue();
+		var colorGroupGuid=colorGroup[0].id.slice(1,-1);
+
+		if(colorGroup!=null && colorGroup!=undefined){
+
+			var fetchXmlQurey="<filter type='and'>"+
+								" <condition attribute='statecode' operator='eq' value='0' />"+
+								" <condition attribute='bdf_colorgroup' operator='eq' uiname='Black' uitype='cr60a_colorgroup' value='"+colorGroupGuid+"' />"+
+								"</filter>"
+			//adding Custom Filter to Specific Color Group
+			formContext.getControl("bdf_specificcolor_new").addCustomFilter(fetchXmlQurey);
+
+
+		}
+		
+	} catch (error) {
+
+		Xrm.Navigation.openAlertDialog({message: error.message });
+		
+	}
+}
+
+
+function filiterSpecificFinish(executionContext){
+
+	debugger
+
+	try {
+
+		var formContext=executionContext.getFormContext();
+		var finishGroup=formContext.getAttribute("bdf_finishgroup").getValue();
+		var finishGroupGuid=colorGroup[0].id.slice(1,-1);
+
+		if(finishGroupGuid!=null && finishGroupGuid!=undefined){
+
+			var fetchXmlQurey="<filter type='and'>"+
+								" <condition attribute='statecode' operator='eq' value='0' />"+
+								"<condition attribute='bdf_finishgroup' operator='eq' uiname='Blue' uitype='cr60a_finishgroup' value='"+finishGroupGuid+"' />"+
+								"</filter>"
+			//adding Custom Filter to Specific Color Group
+			formContext.getControl("bdf_specificfinish_new").addCustomFilter(fetchXmlQurey);
+
+
+		}
+		
+	} catch (error) {
+
+		Xrm.Navigation.openAlertDialog({message: error.message });
+		
+	}
 }
